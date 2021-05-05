@@ -1,2 +1,2 @@
-# Froggybot
-Multi-functional discord bot
+# Zhababot
+ 
