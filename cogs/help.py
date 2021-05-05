@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 
+# initializing cog
 class Help(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -249,9 +250,12 @@ class Help(commands.Cog):
                            colour=message.author.color)
         em.add_field(name="**Syntax**", value="`#user_info [the info shown (mode)] [server member]`")
         em.add_field(name="Possible modes",
-                     value="`full` - displays all info about the user\n `money` - displays all money stats\n `games` - displays all games stats\n `rewards` - displays all info about Daily rewards and Work payments\n `robbery` - displays all robbery stats")
+                     value="`full` - displays all info about the user\n `money` - displays all money stats\n `games` "
+                           "- displays all games stats\n `rewards` - displays all info about Daily rewards and Work "
+                           "payments\n `robbery` - displays all robbery stats")
         em.add_field(name="**Aliases**", value="`#user-info, #user_info`")
         await message.send(embed=em)
 
+# activating cog
 def setup(bot):
     bot.add_cog(Help(bot))
