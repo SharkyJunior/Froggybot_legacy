@@ -1,3 +1,7 @@
-# Zhababot
+# Froggy bot
  
-dsdsd
+A multi-functional discord bot.
+Features:
+-Moderation
+-Economy
+-Giveaways
