@@ -5,6 +5,7 @@ import random
 import datetime
 import operator
 import asyncio
+import time
 
 from discord.utils import get
 from random import randint as ri
@@ -118,9 +119,13 @@ async def user_info(ctx, mode="full", member: discord.Member=None):
     if member is None:
         md = load_member_data(ctx.author.id)
         info_owner = ctx.author.display_name
+        user_age = time.time() - ctx.message.author.created_at.timestamp()
     else:
         md = load_member_data(member.id)
         info_owner = member.display_name
+        user_age = time.time() - member.created_at.timestamp()
+
+    print(user_age)
     em = discord.Embed(title=f':ledger: {info_owner}', colour=discord.Color.from_rgb(255, 211, 0))
     if mode == "full":
         em.add_field(name='Money stats',       value=f"Money total won = {md.MoneyWon}:coin:\n\
@@ -149,6 +154,7 @@ async def user_info(ctx, mode="full", member: discord.Member=None):
                                                        Successful robberies = {md.SuccessfulRobberies}\n\
                                                        The amount of times you were tried to get robbed = {md.TimesRobbed}\n\
                                                        The amount of times you were succesfully robbed = {md.TimesSuccessfullyRobbed}")
+        em.add_field(name='General info',      value=f"The account age = {int(user_age//31536000)}y {int(user_age//86400)}d {int(user_age//3600)}h {int(user_age//60)}m")
     elif mode == "money" or mode == "m":
         em.add_field(name='Money',             value=f"Money total won = {md.MoneyWon}:coin:\n\
                                                        Money total lost = {md.MoneyLost}:coin:\n\
