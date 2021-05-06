@@ -313,23 +313,6 @@ class Moderation(commands.Cog):
             await message.channel.purge(limit=int(num) + 1) # clears channel
             await message.channel.send(f":white_check_mark: **Deleted {int(num)} messages!**")
 
-    # clearmoney command
-    @commands.command()
-    @commands.has_permissions(administrator=True)
-    async def clearmoney(self, message, member: discord.Member = None):
-        if member == None:
-            member_data = load_member_data(message.author.id)
-            member_data.wallet = 0
-            member_data.bank = 0
-            save_member_data(message.author.id, member_data)
-            await message.channel.send(
-                f":white_check_mark: **Cleared {message.author.mention}'s account successfully!**")
-        else:
-            member_data = load_member_data(member.id)
-            member_data.wallet = 0
-            member_data.bank = 0
-            save_member_data(member.id, member_data)
-            await message.channel.send(f":white_check_mark: **Cleared {member.mention}'s account successfully!**")
 
 # activating cog
 def setup(bot):
