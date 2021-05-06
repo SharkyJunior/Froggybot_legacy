@@ -2,11 +2,10 @@ import discord
 from discord.ext import commands
 from random import randint as ri
 import random
+from main import load_member_data, add_wmoney, remove_wmoney, save_member_data, SLOTS_OPTIONS, rob_money, send_money
+
 
 # initializing cog
-from main import load_member_data, add_wmoney, remove_wmoney, save_member_data, SLOTS_OPTIONS
-
-
 class Games(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -239,6 +238,82 @@ class Games(commands.Cog):
             save_member_data(message.author.id, member_data)
             pass
 
+    @commands.command()
+    async def rob(self, message, member: discord.Member = None):
+        if member != None and member != message.author:
+            author_data = load_member_data(message.author.id)
+            member_data = load_member_data(member.id)
+            author_money = [author_data.wallet, author_data.bank]
+            member_money = [member_data.wallet, member_data.bank]
+            mwbal = member_data.wallet
+            if mwbal > 0:
+                author_data.RobAttempts += 1
+                member_data.TimesRobbed += 1
+
+                robamount = ri(int(0.1 * mwbal), int(0.3 * mwbal))
+                robchance = ri(25, 50)
+                result = random.randint(0, 100)
+                if result < robchance:
+                    member_money[0], author_money[0] = rob_money(message.author, member, robamount)
+                    author_data.SuccessfulRobberies += 1
+                    member_data.TimesSuccessfullyRobbed += 1
+                    author_data.TotalRobberyProfit += robamount
+
+                    em = discord.Embed(title=":white_check_mark: Robbed {} successfully!".format(member.display_name),
+                                       colour=discord.Color.from_rgb(60, 179, 113))
+
+                    em.add_field(name=":moneybag: Robber", value=message.author.mention)
+                    em.add_field(name="Victim", value=member.mention)
+                    em.add_field(name="Money stolen", value=f"{robamount}:coin:")
+
+                    dm = discord.Embed(title=":exclamation: **You were robbed!!!**",
+                                       colour=discord.Color.from_rgb(220, 20, 60))
+                    dm.add_field(name=":moneybag: Robber", value=message.author.mention)
+                    dm.add_field(name="Money stolen", value=f"{robamount}:coin:")
+
+                    p = await member.create_dm()
+
+                    await p.send(embed=dm)
+                    await message.channel.send(embed=em)
+                else:
+                    author_data.TotalRobberyProfit -= 3 * robamount
+
+                    author_money[0], author_money[1], member_money[0], member_money[1] = send_money(message.author,
+                                                                                                    member,
+                                                                                                    3 * robamount)
+
+                    em = discord.Embed(title=":man_police_officer: {} was caught!".format(message.author.display_name),
+                                       colour=discord.Color.from_rgb(220, 20, 60))
+
+                    em.add_field(name=":moneybag: Robber", value=message.author.mention)
+                    em.add_field(name="Victim", value=member.mention)
+                    em.add_field(name="Fee", value=f"{robamount * 3}:coin:")
+
+                    dm = discord.Embed(title=":exclamation: **Rob attempt!!!**",
+                                       description=f"{message.author.mention} attempted to rob you, but got caught",
+                                       colour=discord.Color.from_rgb(220, 20, 60))
+                    dm.add_field(name=":moneybag: Robber", value=message.author.mention)
+                    dm.add_field(name="Fee", value=f"{robamount * 3}:coin:")
+
+                    p = await member.create_dm()
+
+                    await p.send(embed=dm)
+                    await message.channel.send(embed=em)
+
+                member_data.wallet, member_data.bank, author_data.wallet, author_data.bank = member_money[0], \
+                                                                                             member_money[1], \
+                                                                                             author_money[0], \
+                                                                                             author_money[1]
+                save_member_data(member.id, member_data)
+                save_member_data(message.author.id, author_data)
+
+            else:
+                await message.channel.send(f":x: **{member.mention} does not have anything in his wallet.**")
+        else:
+            if member == None:
+                await message.channel.send(":x: **Please write someone to rob))**")
+            else:
+                await message.channel.send(":x: **You can not rob yourself! :rofl:**")
 
 # activating cog
 def setup(bot):

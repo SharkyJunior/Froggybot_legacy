@@ -19,7 +19,7 @@ class Moderation(commands.Cog):
     #kick command
     @commands.command()
     @commands.has_permissions(kick_members=True)
-    async def kick(self, message, member: discord.User = None, *, reason='No reason given'):
+    async def kick(self, message, member: discord.Member = None, *, reason='No reason given'):
         if member != None:
             channel = self.bot.get_channel(836955773513760769) #getting admin channel
 
