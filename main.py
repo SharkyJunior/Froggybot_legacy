@@ -19,7 +19,7 @@ GUILD_ID = 836887040364511283
 DAILY_LIMIT = 2400
 DAILY_MULTIPLIER = 0.4
 WORK_LIMIT = 100
-ENTER_ROLE = "Адекватный чел"
+ENTER_ROLE_ID = 836891624398389298
 SLOTS_OPTIONS = [":watch:", ":bulb:", ":yo_yo:", ":paperclip:", ":cd:", ":dvd:", ":mag_right:", ":amphora:", ":ringed_planet:", ":gem:", ":rugby_football:", ":nut_and_bolt:", ":lemon:", ":package:", ":crystal_ball:", ":cherries:", ":video_game:", ":tickets:"]
 
 intents = discord.Intents.all()
@@ -61,7 +61,7 @@ async def change_status():
 
 
 class Data:
-    def __init__(self, wallet, bank, isPlayingRoulette, lastRouletteBet, lastRoulettePrize, lastMessage, isPlayingHL, DicesPlayed, RoulettesPlayed, SlotsPlayed, HighLowsPlayed, MoneyWon, MoneyLost, RobAttempts, TimesRobbed, DailyRewardsCollected, WorksCollected, SuccessfulRobberies, TimesSuccessfullyRobbed, MoneyWoninDice, MoneyLostinDice, MoneyWoninSlots, MoneyLostinSlots, MoneyWoninHighLow, MoneyLostinHighLow, MoneyWoninRoulette, MoneyLostinRoulette, TotalRobberyProfit, TotalGamesPlayed, MoneyGotfromDailyRewards, MoneyGotfromWorkPayments):
+    def __init__(self, wallet, bank, isPlayingRoulette, lastRouletteBet, lastRoulettePrize, lastMessage, isPlayingHL, DicesPlayed, RoulettesPlayed, SlotsPlayed, HighLowsPlayed, MoneyWon, MoneyLost, RobAttempts, TimesRobbed, DailyRewardsCollected, WorksCollected, SuccessfulRobberies, TimesSuccessfullyRobbed, MoneyWoninDice, MoneyLostinDice, MoneyWoninSlots, MoneyLostinSlots, MoneyWoninHighLow, MoneyLostinHighLow, MoneyWoninRoulette, MoneyLostinRoulette, TotalRobberyProfit, TotalGamesPlayed, MoneyGotfromDailyRewards, MoneyGotfromWorkPayments, TimeJoined):
         self.wallet = wallet
         self.bank = bank
         self.isPlayingRoulette = isPlayingRoulette
@@ -98,6 +98,8 @@ class Data:
         self.MoneyGotfromDailyRewards = MoneyGotfromDailyRewards
         self.MoneyGotfromWorkPayments = MoneyGotfromWorkPayments
 
+        self.TimeJoined = TimeJoined
+
 @bot.event
 async def on_ready():
     print('Froggy is logged in as {0.user}'.format(bot))
@@ -106,6 +108,24 @@ async def on_ready():
 async def on_guild_join(guild):
     setup_channel = random.choice(guild.text_channels)
     await setup_channel.send("Hello, I'm Froggy!")
+
+@bot.event
+async def on_member_join(member):
+    member_data = load_member_data(member.id)
+    member_data.TimeJoined = datetime.datetime.today()
+
+    role = get(member.guild.roles, id=836891624398389298)
+    await member.add_roles(role)
+
+    p = await member.create_dm()
+    await p.send(f"Nice to meet you on {member.guild.name} server!")
+
+    save_member_data(member.id, member_data)
+
+@bot.event
+async def on_member_left(member):
+    p = await member.create_dm()
+    await p.send(f"Bye, bye!")
 
 @bot.command()
 async def test(ctx):
@@ -128,6 +148,7 @@ async def user_info(ctx, mode="full", member: discord.Member=None):
         info_owner = member.display_name
         user_age = time.time() - member.created_at.timestamp()
         creationDate = member.created_at
+
 
     em = discord.Embed(title=f':ledger: {info_owner}', colour=discord.Color.from_rgb(255, 211, 0))
     if mode == "full":
@@ -158,7 +179,8 @@ async def user_info(ctx, mode="full", member: discord.Member=None):
                                                        The amount of times you were tried to get robbed = {md.TimesRobbed}\n\
                                                        The amount of times you were succesfully robbed = {md.TimesSuccessfullyRobbed}")
         em.add_field(name='General info',      value=f"The account age = {int(user_age//31536000)}y {int(user_age//86400) - int(user_age//31536000*365)}d {int(user_age//3600) - int(user_age//86400)*24}h {int(user_age//60) - int(user_age//3600)*60}m\n\
-                                                       The account creation date = {creationDate.year}-{creationDate.month}-{creationDate.mday}")
+                                                       The account creation date = {creationDate.year}-{creationDate.month}-{creationDate.day}\n\
+                                                       Last time joined this server = {md.TimeJoined.year}-{md.TimeJoined.month}-{md.TimeJoined.day}")
     elif mode == "money" or mode == "m":
         em.add_field(name='Money',             value=f"Money total won = {md.MoneyWon}:coin:\n\
                                                        Money total lost = {md.MoneyLost}:coin:\n\
@@ -398,7 +420,7 @@ def load_member_data(member_ID):
     data = load_data()
 
     if member_ID not in data: #adding data for new members if they dont have it
-        return Data(0, 0, False, 0, 0, None, False, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        return Data(0, 0, False, 0, 0, None, False, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, datetime.datetime.today())
 
     return data[member_ID]
 
