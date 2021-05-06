@@ -118,12 +118,13 @@ async def user_info(ctx, mode="full", member: discord.Member=None):
         md = load_member_data(ctx.author.id)
         info_owner = ctx.author.display_name
         user_age = time.time() - ctx.message.author.created_at.timestamp()
+        creationDate = ctx.message.author.created_at
     else:
         md = load_member_data(member.id)
         info_owner = member.display_name
         user_age = time.time() - member.created_at.timestamp()
+        creationDate = member.created_at
 
-    print(user_age)
     em = discord.Embed(title=f':ledger: {info_owner}', colour=discord.Color.from_rgb(255, 211, 0))
     if mode == "full":
         em.add_field(name='Money stats',       value=f"Money total won = {md.MoneyWon}:coin:\n\
@@ -152,7 +153,8 @@ async def user_info(ctx, mode="full", member: discord.Member=None):
                                                        Successful robberies = {md.SuccessfulRobberies}\n\
                                                        The amount of times you were tried to get robbed = {md.TimesRobbed}\n\
                                                        The amount of times you were succesfully robbed = {md.TimesSuccessfullyRobbed}")
-        em.add_field(name='General info',      value=f"The account age = {int(user_age//31536000)}y {int(user_age//86400)}d {int(user_age//3600)}h {int(user_age//60)}m")
+        em.add_field(name='General info',      value=f"The account age = {int(user_age//31536000)}y {int(user_age//86400) - int(user_age//31536000*365)}d {int(user_age//3600) - int(user_age//86400)*24}h {int(user_age//60) - int(user_age//3600)*60}m\n\
+                                                       The account creation date = {creationDate.year}-{creationDate.month}-{creationDate.mday}")
     elif mode == "money" or mode == "m":
         em.add_field(name='Money',             value=f"Money total won = {md.MoneyWon}:coin:\n\
                                                        Money total lost = {md.MoneyLost}:coin:\n\
