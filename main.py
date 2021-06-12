@@ -35,7 +35,8 @@ DEFAULT_MEMBER_INFO = {'wallet': 0, 'bank': 0, 'isPlayingRoulette': False, 'last
                        'MoneyWon': 0, 'MoneyLost': 0, 'MoneyWoninDice': 0, 'MoneyLostinDice': 0, 'MoneyWoninSlots': 0,
                        'MoneyLostinSlots': 0, 'MoneyWoninHighLow': 0, 'MoneyLostinHighLow': 0, 'MoneyWoninRoulette': 0,
                        'MoneyLostinRoulette': 0,
-                       'MoneyGotfromDailyRewards': 0, 'MoneyGotfromWorkPayments': 0}
+                       'MoneyGotfromDailyRewards': 0, 'MoneyGotfromWorkPayments': 0,
+                       'TimeJoined': 0}
 
 SLOTS_OPTIONS = [":watch:", ":bulb:", ":yo_yo:", ":paperclip:", ":cd:", ":dvd:", ":mag_right:", ":amphora:",
                  ":ringed_planet:", ":gem:", ":rugby_football:", ":nut_and_bolt:", ":lemon:", ":package:",
@@ -222,8 +223,8 @@ async def user_info(ctx, mode="full", member: discord.Member = None):
                                                        The amount of times you were tried to get robbed = {md['TimesRobbed']}\n\
                                                        The amount of times you were succesfully robbed = {md['TimesSuccessfullyRobbed']}")
         em.add_field(name='General info',      value=f"The account age = {int(user_age // 31536000)}y {int(user_age // 86400) - int(user_age // 31536000 * 365)}d {int(user_age // 3600) - int(user_age // 86400) * 24}h {int(user_age // 60) - int(user_age // 3600) * 60}m\n\
-                                                       The account creation date = {creationDate.year}-{creationDate.month}-{creationDate.day}\n\
-                                                       Last time joined this server = {md.TimeJoined.year}-{md.TimeJoined.month}-{md.TimeJoined.day}")
+                                                       The account creation date = {creationDate.year}-{creationDate.month}-{creationDate.day}")
+
 
     elif mode == "money" or mode == "m":
         em.add_field(name='Money stats',       value=f"Money total won = {md['MoneyWon']}:coin:\n\
