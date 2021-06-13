@@ -1,10 +1,4 @@
-import asyncio
-import datetime
-from discord.utils import get
-import discord
-from discord.ext import commands
-
-from main import load_member_data, save_member_data, to_sec
+from main import *
 
 # initializing cog
 class Moderation(commands.Cog):

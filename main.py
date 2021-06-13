@@ -5,13 +5,14 @@ import random
 import datetime
 import asyncio
 import time
-import json
 
 from discord.utils import get
 from random import randint as ri
 import discord
 from discord.ext import commands
 from discord.ext.commands import cooldown, CommandOnCooldown, MissingRequiredArgument, MissingRole, MissingPermissions
+
+from info_operator import *
 
 TOKEN = 'ODM3MzIwODIxMDAwODk2NTYy.YIq1yA.tyHW7JqeFuCk449E-a5n0Gs-j68'
 PREFIX = '#'
@@ -21,11 +22,8 @@ DAILY_LIMIT = 2400
 DAILY_MULTIPLIER = 0.4
 WORK_LIMIT = 100
 ENTER_ROLE_ID = 836891624398389298
-DEFAULT_SERVER_INFO = {'server-info':
-                           {"shop": dict()
-                            }
-                       }
-DEFAULT_MEMBER_INFO = {'wallet': 0, 'bank': 0, 'isPlayingRoulette': False, 'lastRouletteBet': 0, 'lastRoulettePrize': 0,
+DEFAULT_DATA = {"DEFAULT_SERVER_INFO": {"server-info": {"shop": dict(), "members": 0}}, "DEFAULT_MEMBER_INFO":
+                      {'wallet': 0, 'bank': 0, 'isPlayingRoulette': False, 'lastRouletteBet': 0, 'lastRoulettePrize': 0,
                        'lastMessage': None, 'isPlayingHL': False,
                        'TotalGamesPlayed': 0,
                        'DicesPlayed': 0, 'RoulettesPlayed': 0, 'SlotsPlayed': 0, 'HighLowsPlayed': 0,
@@ -36,8 +34,7 @@ DEFAULT_MEMBER_INFO = {'wallet': 0, 'bank': 0, 'isPlayingRoulette': False, 'last
                        'MoneyLostinSlots': 0, 'MoneyWoninHighLow': 0, 'MoneyLostinHighLow': 0, 'MoneyWoninRoulette': 0,
                        'MoneyLostinRoulette': 0,
                        'MoneyGotfromDailyRewards': 0, 'MoneyGotfromWorkPayments': 0,
-                       'TimeJoined': 0}
-
+                       'TimeJoined': 0}}
 SLOTS_OPTIONS = [":watch:", ":bulb:", ":yo_yo:", ":paperclip:", ":cd:", ":dvd:", ":mag_right:", ":amphora:",
                  ":ringed_planet:", ":gem:", ":rugby_football:", ":nut_and_bolt:", ":lemon:", ":package:",
                  ":crystal_ball:", ":cherries:", ":video_game:", ":tickets:"]
@@ -138,7 +135,7 @@ async def on_ready():
 async def on_guild_join(guild):
     setup_channel = random.choice(guild.text_channels)
     await setup_channel.send("Hello, I'm Froggy!")
-    create_default_data(guild)
+    create_default_guild_data(guild)
 
 
 @bot.event
@@ -168,11 +165,33 @@ async def on_member_left(member):
 
 @bot.command()
 async def test(ctx):
-    shop_add(ctx.guild, 'test', 'test', 10, True)
+    await ctx.channel.send(load_server_data(ctx.guild))
+
+
+@bot.command()
+async def cdmd(ctx, member: discord.User):
+    if member is None:
+        member = ctx.author
+    create_default_member_data(member, ctx.guild)
+    await ctx.channel.send(f"Default member data created successfully for {member.mention}!")
+
+
+@bot.command()
+async def cdgd(ctx):
+    create_default_guild_data(ctx.guild)
+    await ctx.channel.send("Default guild data created successfully!")
+
 
 @bot.command()
 async def cdd(ctx):
-    create_default_data(ctx.guild)
+    create_default_data()
+    await ctx.channel.send("Default data created successfully!")
+
+
+@bot.command()
+async def cdsd(ctx):
+    create_default_server_data(ctx.guild)
+    await ctx.channel.send("Default server info created successfully!")
 
 
 @bot.command()
@@ -531,63 +550,6 @@ async def on_command_error(ctx, exc):
         print(exc)
 
 
-# data loaders
-def load_member_data(member, guild):
-    data = load_guild_data(guild)
-    if not str(member.id) in data:
-        data[str(member.id)] = DEFAULT_MEMBER_INFO
-        save_guild_data(data, guild)
-
-    return data[str(member.id)]
-
-
-def load_guild_data(guild):
-    with open('data.json', 'r') as file:
-        data = json.load(file)
-
-    return data[str(guild.id)]
-
-
-def load_full_data():
-    with open('data.json', 'r') as file:
-        data = json.load(file)
-
-    return data
-
-
-# data savers
-def save_member_data(data, member, guild):
-    guild_data = load_guild_data(guild)
-    guild_data[str(member.id)] = data
-    save_guild_data(guild_data, guild)
-
-
-def save_guild_data(data, guild):
-    full_data = load_full_data()
-    full_data[str(guild.id)].update(data)
-    save_full_data(full_data)
-
-
-def save_full_data(full_data):
-    with open('data.json', 'w') as f:
-        json.dump(full_data, f, indent=4)
-
-
-# data management
-def create_default_data(guild):
-    full = load_full_data()
-    allInfo = DEFAULT_SERVER_INFO
-    members = guild.members
-
-    for i in members:
-        if not i.bot:
-            allInfo[str(i.id)] = DEFAULT_MEMBER_INFO
-
-    full[str(guild.id)] = allInfo
-
-    save_full_data(full)
-
-
 def remove_server_data(guild):
     full = load_full_data()
     full.pop(str(guild.id))
@@ -595,7 +557,7 @@ def remove_server_data(guild):
 
 
 # utility functions
-def load_data():
+def load_data_old():
     if os.path.isfile(data_filename) and os.path.getsize(data_filename) > 0:
         with open(data_filename, "rb") as file:
             return pickle.load(file)
@@ -604,7 +566,7 @@ def load_data():
 
 
 def load_member_data_old(member_ID):
-    data = load_data()
+    data = load_data_old()
 
     if member_ID not in data:  # adding data for new members if they don't have it
         return Data(0, 0, False, 0, 0, None, False, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -614,7 +576,7 @@ def load_member_data_old(member_ID):
 
 
 def save_member_data_old(member_ID, member_data):
-    data = load_data()
+    data = load_data_old()
 
     data[member_ID] = member_data
 

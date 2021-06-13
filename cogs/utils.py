@@ -1,9 +1,4 @@
-import operator
-
-import discord
-from discord.ext import commands
-from main import load_member_data, deposit_money, withdraw_money, set_money, remove_money, add_money, send_money, \
-    save_member_data
+from main import *
 
 
 # initializing cog

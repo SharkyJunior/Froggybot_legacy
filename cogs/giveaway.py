@@ -1,11 +1,4 @@
-import asyncio
-import random
-
-import discord
-from discord.ext import commands
-import datetime
-
-from main import to_sec
+from main import *
 
 # initializing cog
 class Giveaway(commands.Cog):

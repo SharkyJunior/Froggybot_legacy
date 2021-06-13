@@ -1,8 +1,4 @@
-import discord
-from discord.ext import commands
-from random import randint as ri
-import random
-from main import load_member_data, add_wmoney, remove_wmoney, save_member_data, SLOTS_OPTIONS, rob_money, send_money
+from main import *
 
 
 # initializing cog

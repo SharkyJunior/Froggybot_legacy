@@ -1,5 +1,4 @@
-import discord
-from discord.ext import commands
+from main import *
 
 # initializing cog
 class Shop(commands.Cog):
