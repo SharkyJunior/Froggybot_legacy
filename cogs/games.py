@@ -1,5 +1,9 @@
 from main import *
 
+SLOTS_OPTIONS = [":watch:", ":bulb:", ":yo_yo:", ":paperclip:", ":cd:", ":dvd:", ":mag_right:", ":amphora:",
+                 ":ringed_planet:", ":gem:", ":rugby_football:", ":nut_and_bolt:", ":lemon:", ":package:",
+                 ":crystal_ball:", ":cherries:", ":video_game:", ":tickets:"]
+
 
 # initializing cog
 class Games(commands.Cog):
@@ -231,6 +235,116 @@ class Games(commands.Cog):
             member_data['isPlayingHL'] = False
             save_member_data(member_data, message.author, message.guild)
             pass
+
+    @commands.command(aliases=['rt'])
+    async def roulette(self, ctx, amt, loaded_rounds):
+        if amt.isnumeric() and loaded_rounds.isnumeric():
+            amt = int(amt)
+            loaded_rounds = int(loaded_rounds)
+            if amt > 0 and loaded_rounds > 0:
+                member_data = load_member_data(ctx.author, ctx.guild)
+                member_wallet = member_data["wallet"]
+                if amt <= member_wallet and loaded_rounds < 6:
+                    if not member_data["isPlayingRoulette"]:
+                        member_data["isPlayingRoulette"] = True
+                        total_won = 0
+                        chamber = [True for i in range(loaded_rounds)] + [False for i in range(6-loaded_rounds)]
+
+                        def stop_roulette(context, amount, mw, md):
+                            mw += amount
+                            md["isPlayingRoulette"] = False
+
+                            md["TotalGamesPlayed"] += 1
+                            md["RoulettesPlayed"] += 1
+
+                            md["wallet"] = mw
+                            save_member_data(md, context.author, context.guild)
+
+                        if not random.choice(chamber):
+                            total_won += amt
+
+                            em = discord.Embed(title=":gun: Roulette",
+                                               description=":hot_face: **You survived!**",
+                                               colour=discord.Color.from_rgb(60, 179, 113))
+                            em.add_field(name=":moneybag: Prize", value=f"{total_won}:coin:")
+                            em.add_field(name="Next prize",
+                                         value=f"{total_won + int(total_won * ROULETTE_MULTIPLIER * (loaded_rounds / 2))}:coin:",
+                                         inline=False)
+                            em.add_field(name="Actions", value="`continue` or `stop`")
+
+                            await ctx.channel.send(embed=em)
+
+                            def check(m):
+                                return ctx.author == m.author
+
+                            while True:
+                                msg = await self.bot.wait_for('message', check=check)
+                                while msg.content not in ['continue', 'stop'] or not check(msg):
+                                    await ctx.channel.send(":x: **I expected something from `continue` or `stop`**")
+                                    msg = await self.bot.wait_for('message', check=check)
+
+                                if msg.content == "continue":
+                                    if not random.choice(chamber):
+                                        total_won += int(total_won * ROULETTE_MULTIPLIER * (loaded_rounds/2))
+
+                                        em = discord.Embed(title=":gun: Roulette",
+                                                           description=":hot_face: **You survived!**",
+                                                           colour=discord.Color.from_rgb(60, 179, 113))
+                                        em.add_field(name=":moneybag: Prize", value=f"{total_won}:coin:")
+                                        em.add_field(name="Next prize",
+                                                     value=f"{total_won + int(total_won * ROULETTE_MULTIPLIER * (loaded_rounds/2))}:coin:", inline=False)
+                                        em.add_field(name="Actions", value="`continue` or `stop`")
+
+                                        await ctx.channel.send(embed=em)
+                                    else:
+                                        em = discord.Embed(title=":gun: Roulette",
+                                                           description=":skull_crossbones: **You lost!**",
+                                                           colour=discord.Color.from_rgb(220, 20, 60))
+                                        em.add_field(name="Wallet",
+                                                     value=":outbox_tray: Wallet: {}:coin: --> {}:coin:".format(
+                                                         member_wallet,
+                                                         member_wallet - int(amt)))
+
+                                        await ctx.channel.send(embed=em)
+
+                                        member_data['MoneyLost'] += amt
+                                        member_data['MoneyLostinRoulette'] += amt
+                                        stop_roulette(ctx, -amt, member_wallet, member_data)
+                                        break
+                                elif msg.content == "stop":
+                                    em = discord.Embed(title=":gun: Roulette", description=":no_good: You exited!",
+                                                       colour=discord.Color.from_rgb(60, 179, 113))
+                                    em.add_field(name="Wallet",
+                                                 value=":inbox_tray: {}:coin: --> {}:coin:".format(member_wallet,
+                                                                                                   member_wallet +
+                                                                                                   total_won))
+
+                                    await ctx.channel.send(embed=em)
+
+                                    member_data['MoneyWon'] += total_won
+                                    member_data['MoneyWoninRoulette'] += total_won
+                                    stop_roulette(ctx, total_won, member_wallet, member_data)
+                                    break
+                        else:
+                            em = discord.Embed(title=":gun: Roulette", description=":skull_crossbones: **You lost!**",
+                                               colour=discord.Color.from_rgb(220, 20, 60))
+                            em.add_field(name="Wallet",
+                                         value=":outbox_tray: Wallet: {}:coin: --> {}:coin:".format(member_wallet,
+                                                                                                    member_wallet - int(
+                                                                                                        amt)))
+                            member_data['MoneyLost'] += amt
+                            member_data['MoneyLostinRoulette'] += amt
+                            stop_roulette(ctx, -amt, member_wallet, member_data)
+                            await ctx.channel.send(embed=em)
+                    else:
+                        await ctx.channel.send("You are already playing roulette!")
+                else:
+                    await ctx.channel.send("You don't have such an amount of money in your wallet!")
+            else:
+                await ctx.channel.send("Enter **valid** numbers!")
+        else:
+            await ctx.channel.send("Enter **valid** values!")
+
 
     @commands.command()
     async def rob(self, message, member: discord.Member = None):

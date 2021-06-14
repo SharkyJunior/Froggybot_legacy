@@ -1,13 +1,10 @@
-import os
 import os.path
-import pickle
 import random
-import datetime
+# import datetime
 import asyncio
 import time
 
 from discord.utils import get
-from random import randint as ri
 import discord
 from discord.ext import commands
 from discord.ext.commands import cooldown, CommandOnCooldown, MissingRequiredArgument, MissingRole, MissingPermissions
@@ -22,22 +19,6 @@ DAILY_LIMIT = 2400
 DAILY_MULTIPLIER = 0.4
 WORK_LIMIT = 100
 ENTER_ROLE_ID = 836891624398389298
-DEFAULT_DATA = {"DEFAULT_SERVER_INFO": {"server-info": {"shop": dict(), "members": 0}}, "DEFAULT_MEMBER_INFO":
-                      {'wallet': 0, 'bank': 0, 'isPlayingRoulette': False, 'lastRouletteBet': 0, 'lastRoulettePrize': 0,
-                       'lastMessage': None, 'isPlayingHL': False,
-                       'TotalGamesPlayed': 0,
-                       'DicesPlayed': 0, 'RoulettesPlayed': 0, 'SlotsPlayed': 0, 'HighLowsPlayed': 0,
-                       'DailyRewardsCollected': 0, 'WorksCollected': 0,
-                       'RobAttempts': 0, 'SuccessfulRobberies': 0, 'TimesRobbed': 0, 'TimesSuccessfullyRobbed': 0,
-                       'TotalRobberyProfit': 0,
-                       'MoneyWon': 0, 'MoneyLost': 0, 'MoneyWoninDice': 0, 'MoneyLostinDice': 0, 'MoneyWoninSlots': 0,
-                       'MoneyLostinSlots': 0, 'MoneyWoninHighLow': 0, 'MoneyLostinHighLow': 0, 'MoneyWoninRoulette': 0,
-                       'MoneyLostinRoulette': 0,
-                       'MoneyGotfromDailyRewards': 0, 'MoneyGotfromWorkPayments': 0,
-                       'TimeJoined': 0}}
-SLOTS_OPTIONS = [":watch:", ":bulb:", ":yo_yo:", ":paperclip:", ":cd:", ":dvd:", ":mag_right:", ":amphora:",
-                 ":ringed_planet:", ":gem:", ":rugby_football:", ":nut_and_bolt:", ":lemon:", ":package:",
-                 ":crystal_ball:", ":cherries:", ":video_game:", ":tickets:"]
 
 intents = discord.Intents.all()
 intents.members = True
@@ -80,52 +61,6 @@ async def change_status():
         await asyncio.sleep(15)
 
 
-class Data:
-    def __init__(self, wallet, bank, isPlayingRoulette, lastRouletteBet, lastRoulettePrize, lastMessage, isPlayingHL,
-                 DicesPlayed, RoulettesPlayed, SlotsPlayed, HighLowsPlayed, MoneyWon, MoneyLost, RobAttempts,
-                 TimesRobbed, DailyRewardsCollected, WorksCollected, SuccessfulRobberies, TimesSuccessfullyRobbed,
-                 MoneyWoninDice, MoneyLostinDice, MoneyWoninSlots, MoneyLostinSlots, MoneyWoninHighLow,
-                 MoneyLostinHighLow, MoneyWoninRoulette, MoneyLostinRoulette, TotalRobberyProfit, TotalGamesPlayed,
-                 MoneyGotfromDailyRewards, MoneyGotfromWorkPayments, TimeJoined):
-        self.wallet = wallet
-        self.bank = bank
-        self.isPlayingRoulette = isPlayingRoulette
-        self.lastRouletteBet = lastRouletteBet
-        self.lastRoulettePrize = lastRoulettePrize
-        self.lastMessage = lastMessage
-        self.isPlayingHL = isPlayingHL
-
-        # info
-        self.DicesPlayed = DicesPlayed
-        self.RoulettesPlayed = RoulettesPlayed
-        self.SlotsPlayed = SlotsPlayed
-        self.HighLowsPlayed = HighLowsPlayed
-        self.RobAttempts = RobAttempts
-        self.SuccessfulRobberies = SuccessfulRobberies
-        self.TimesRobbed = TimesRobbed
-        self.TimesSuccessfullyRobbed = TimesSuccessfullyRobbed
-        self.TotalRobberyProfit = TotalRobberyProfit
-        self.DailyRewardsCollected = DailyRewardsCollected
-        self.WorksCollected = WorksCollected
-        self.TotalGamesPlayed = TotalGamesPlayed
-
-        # money info
-        self.MoneyWon = MoneyWon
-        self.MoneyLost = MoneyLost
-        self.MoneyWoninDice = MoneyWoninDice
-        self.MoneyLostinDice = MoneyLostinDice
-        self.MoneyWoninSlots = MoneyWoninSlots
-        self.MoneyLostinSlots = MoneyLostinSlots
-        self.MoneyWoninHighLow = MoneyWoninHighLow
-        self.MoneyLostinHighLow = MoneyLostinHighLow
-        self.MoneyWoninRoulette = MoneyWoninRoulette
-        self.MoneyLostinRoulette = MoneyLostinRoulette
-        self.MoneyGotfromDailyRewards = MoneyGotfromDailyRewards
-        self.MoneyGotfromWorkPayments = MoneyGotfromWorkPayments
-
-        self.TimeJoined = TimeJoined
-
-
 @bot.event
 async def on_ready():
     print('Froggy is logged in as {0.user}'.format(bot))
@@ -140,15 +75,15 @@ async def on_guild_join(guild):
 
 @bot.event
 async def on_guild_remove(guild):
-    remove_server_data(guild)
+    remove_guild_data(guild)
 
 
 @bot.event
 async def on_member_join(member):
     member_data = load_member_data(member, member.guild)
-    member_data['TimeJoined'] = datetime.datetime.today()
+    server_info = load_server_data(member.guild)
 
-    role = get(member.guild.roles, id=836891624398389298)
+    role = get(member.guild.roles, id=server_info["enter-role-id"])
     await member.add_roles(role)
 
     p = await member.create_dm()
@@ -192,6 +127,12 @@ async def cdd(ctx):
 async def cdsd(ctx):
     create_default_server_data(ctx.guild)
     await ctx.channel.send("Default server info created successfully!")
+
+
+@bot.command()
+async def cdshd(ctx):
+    create_default_shop_data(ctx.guild)
+    await ctx.channel.send("Default shop info created successfully!")
 
 
 @bot.command()
@@ -345,181 +286,6 @@ async def work(ctx):
     save_member_data(member_data, ctx.author, ctx.guild)
 
 
-@bot.command(aliases=['rt'])
-async def roulette(message, amt=0):
-    member_data = load_member_data(message.author, message.guild)
-    wallet_money = member_data['wallet']
-    if int(amt) > 0:
-        amt = int(amt)
-        if not member_data['isPlayingRoulette'] and wallet_money >= amt:
-            member_data['isPlayingRoulette'] = True
-            won = random.choice([True, False])
-            if won:
-                em = discord.Embed(title=":gun: Roulette", description=":hot_face: **You survived!**",
-                                   colour=discord.Color.from_rgb(60, 179, 113))
-                em.add_field(name=":moneybag: Prize", value=f"{amt}:coin:")
-                em.add_field(name="Next prize", value=f"{amt + int(amt * ROULETTE_MULTIPLIER)}:coin:", inline=False)
-                em.add_field(name="Actions", value="`continue` to continue\n`stop` to stop")
-
-                member_data['isPlayingRoulette'] = True
-                member_data.lastRouletteBet = amt
-                member_data.lastRoulettePrize = amt
-
-                save_member_data(member_data, message.author, message.guild)
-                await message.channel.send(embed=em)
-
-                def check(m):
-                    return message.author == m.author
-
-                msg = await bot.wait_for('message', check=check)
-                while msg.content not in ['continue', 'stop'] or not check(msg):  # waiting for appropriate answer
-                    await message.channel.send(
-                        ":x: **I expected something from `continue` or `stop`**")
-                    msg = await bot.wait_for('message', check=check)
-
-                if msg == 'stop':
-                    member_data['TotalGamesPlayed'] += 1
-                    member_data['RoulettesPlayed'] += 1
-                    member_data['MoneyWon'] += amt
-                    member_data['MoneyWoninRoulette'] += amt
-
-                    wallet_money = member_data['wallet']
-
-                    em = discord.Embed(title=":gun: Roulette", description=":no_good: You exited!",
-                                       colour=discord.Color.from_rgb(60, 179, 113))
-                    em.add_field(name="Wallet", value=":inbox_tray: {}:coin: --> {}:coin:".format(wallet_money,
-                                                                                                  wallet_money + amt))
-
-                    member_data.wallet += amt
-                    member_data.isPlayingRoulette = False
-                    await message.channel.send(embed=em)
-                    save_member_data(member_data, message.author, message.guild)
-
-                elif msg == 'continue':
-                    while not msg.content == 'stop' or not check(msg):  # waiting for appropriate answer
-                        if msg.content == 'continue':
-                            won = random.choice([True, False])
-                            wallet_money = member_data['wallet']
-                            if won:
-                                prize = member_data.lastRoulettePrize + int(
-                                    member_data.lastRoulettePrize * ROULETTE_MULTIPLIER)
-
-                                em = discord.Embed(title=":gun: Roulette", description=":hot_face: **You survived!**",
-                                                   colour=discord.Color.from_rgb(60, 179, 113))
-                                em.add_field(name=":moneybag: Prize", value=f"{prize}:coin:")
-                                em.add_field(name="Next prize",
-                                             value=f"{prize + int(prize * ROULETTE_MULTIPLIER)}:coin:", inline=False)
-                                em.add_field(name="Actions", value="`#cont-rt` to continue\n`#stop-rt` to stop")
-
-                                member_data['lastRoulettePrize'] = prize
-                                await message.channel.send(embed=em)
-                                save_member_data(member_data, message.author, message.guild)
-                            else:
-                                member_data['TotalGamesPlayed'] += 1
-                                member_data['RoulettesPlayed'] += 1
-                                member_data['MoneyLost'] += amt
-                                member_data['MoneyLostinRoulette'] += amt
-
-                                em = discord.Embed(title=":gun: Roulette",
-                                                   description=":skull_crossbones: **You lost!**",
-                                                   colour=discord.Color.from_rgb(220, 20, 60))
-                                em.add_field(name="Wallet",
-                                             value=":outbox_tray: Wallet: {}:coin: --> {}:coin:".format(wallet_money,
-                                                                                                        wallet_money - amt))
-
-                                member_data['isPlayingRoulette'] = False
-                                member_data.wallet -= amt
-                                await message.channel.send(embed=em)
-                                save_member_data(member_data, message.author, message.guild)
-                        msg = await bot.wait_for('message', check=check)
-
-
-
-            else:
-                member_data['TotalGamesPlayed'] += 1
-                member_data['RoulettesPlayed'] += 1
-                member_data['MoneyLost'] += int(amt)
-                member_data['MoneyLostinRoulette'] += int(amt)
-
-                em = discord.Embed(title=":gun: Roulette", description=":skull_crossbones: **You lost!**",
-                                   colour=discord.Color.from_rgb(220, 20, 60))
-                em.add_field(name="Wallet", value=":outbox_tray: Wallet: {}:coin: --> {}:coin:".format(wallet_money, wallet_money - int(amt)))
-
-                member_data['isPlayingRoulette'] = False
-                member_data['wallet'] -= int(amt)
-
-                save_member_data_old(member_data, message.author, message.guild)
-                await message.channel.send(embed=em)
-        elif wallet_money < amt:
-            await message.channel.send(":x: **You don't have enough money in your wallet!**")
-        else:
-            await message.channel.send(":x: **You're already playing!**")
-    else:
-        await message.channel.send(":x:**Enter a valid number!**")
-
-
-@bot.command(aliases=['cont-rt'])
-async def cont_rt(message):
-    member_data = load_member_data_old(message.author.id)
-    if member_data.isPlayingRoulette:
-        won = random.choice([True, False])
-        wallet_money = member_data.wallet
-        if won:
-            prize = member_data.lastRoulettePrize + int(member_data.lastRoulettePrize * ROULETTE_MULTIPLIER)
-
-            em = discord.Embed(title=":gun: Roulette", description=":hot_face: **You survived!**",
-                               colour=discord.Color.from_rgb(60, 179, 113))
-            em.add_field(name=":moneybag: Prize", value=f"{prize}:coin:")
-            em.add_field(name="Next prize", value=f"{prize + int(prize * ROULETTE_MULTIPLIER)}:coin:", inline=False)
-            em.add_field(name="Actions", value="`#cont-rt` to continue\n`#stop-rt` to stop")
-
-            member_data.lastRoulettePrize = prize
-            await message.channel.send(embed=em)
-            save_member_data_old(message.author.id, member_data)
-        else:
-            member_data.TotalGamesPlayed += 1
-            member_data.RoulettesPlayed += 1
-            member_data.MoneyLost += member_data.lastRouletteBet
-            member_data.MoneyLostinRoulette += member_data.lastRouletteBet
-
-            em = discord.Embed(title=":gun: Roulette", description=":skull_crossbones: **You lost!**",
-                               colour=discord.Color.from_rgb(220, 20, 60))
-            em.add_field(name="Wallet", value=":outbox_tray: Wallet: {}:coin: --> {}:coin:".format(wallet_money,
-                                                                                                   wallet_money - member_data.lastRouletteBet))
-
-            member_data.isPlayingRoulette = False
-            member_data.wallet -= member_data.lastRouletteBet
-            await message.channel.send(embed=em)
-            save_member_data_old(message.author.id, member_data)
-    else:
-        await message.channel.send(":x: **You're not playing roulette!** ")
-    save_member_data_old(message.author.id, member_data)
-
-
-@bot.command(aliases=['stop-rt'])
-async def stop_rt(message):
-    member_data = load_member_data_old(message.author.id)
-    if member_data.isPlayingRoulette:
-        member_data.TotalGamesPlayed += 1
-        member_data.RoulettesPlayed += 1
-        member_data.MoneyWon += member_data.lastRoulettePrize
-        member_data.MoneyWoninRoulette += member_data.lastRoulettePrize
-
-        wallet_money = member_data.wallet
-
-        em = discord.Embed(title=":gun: Roulette", description=":no_good: You exited!",
-                           colour=discord.Color.from_rgb(60, 179, 113))
-        em.add_field(name="Wallet", value=":inbox_tray: {}:coin: --> {}:coin:".format(wallet_money,
-                                                                                      wallet_money + member_data.lastRoulettePrize))
-
-        member_data.wallet += member_data.lastRoulettePrize
-        member_data.isPlayingRoulette = False
-        await message.channel.send(embed=em)
-        save_member_data_old(message.author.id, member_data)
-    else:
-        await message.channel.send(":x: **You're not playing roulette!**")
-
-
 # error messages
 @bot.event
 async def on_command_error(ctx, exc):
@@ -548,40 +314,6 @@ async def on_command_error(ctx, exc):
             ":x: **You do not have permission to run this command!**")
     else:
         print(exc)
-
-
-def remove_server_data(guild):
-    full = load_full_data()
-    full.pop(str(guild.id))
-    save_full_data(full)
-
-
-# utility functions
-def load_data_old():
-    if os.path.isfile(data_filename) and os.path.getsize(data_filename) > 0:
-        with open(data_filename, "rb") as file:
-            return pickle.load(file)
-    else:
-        return dict()
-
-
-def load_member_data_old(member_ID):
-    data = load_data_old()
-
-    if member_ID not in data:  # adding data for new members if they don't have it
-        return Data(0, 0, False, 0, 0, None, False, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                    0, datetime.datetime.today())
-
-    return data[member_ID]
-
-
-def save_member_data_old(member_ID, member_data):
-    data = load_data_old()
-
-    data[member_ID] = member_data
-
-    with open(data_filename, "wb") as file:
-        pickle.dump(data, file)
 
 
 # adds money to user's bank account and returns the final amount

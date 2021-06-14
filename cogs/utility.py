@@ -197,7 +197,7 @@ class Utils(commands.Cog):
                 wbal = member_data['wallet']
                 withdraw_money(message.author, bbal)
                 bbal1 = 0
-                wbal1 = bbal
+                wbal1 = bbal + wbal
 
                 embed = discord.Embed(title=':white_check_mark: Operation complete!',
                                       colour=discord.Color.from_rgb(60, 179, 113))
