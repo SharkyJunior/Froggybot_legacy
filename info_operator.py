@@ -3,28 +3,31 @@ import json
 FILENAME = "data.json"
 
 DEFAULT_DATA = {"DEFAULT_SERVER_INFO":
-    {"server-info":
-        {"shop": dict(),
-         "members": 0,
-         "enter-role-id": 836891624398389298
-        }
-    }, "DEFAULT_MEMBER_INFO":
-    {'wallet': 0, 'bank': 0, 'isPlayingRoulette': False, 'lastMessage': None, 'isPlayingHL': False,
-     'TotalGamesPlayed': 0,
-     'DicesPlayed': 0, 'RoulettesPlayed': 0, 'SlotsPlayed': 0, 'HighLowsPlayed': 0,
-     'DailyRewardsCollected': 0, 'WorksCollected': 0,
-     'RobAttempts': 0, 'SuccessfulRobberies': 0, 'TimesRobbed': 0, 'TimesSuccessfullyRobbed': 0,
-     'TotalRobberyProfit': 0,
-     'MoneyWon': 0, 'MoneyLost': 0, 'MoneyWoninDice': 0, 'MoneyLostinDice': 0, 'MoneyWoninSlots': 0,
-     'MoneyLostinSlots': 0, 'MoneyWoninHighLow': 0, 'MoneyLostinHighLow': 0, 'MoneyWoninRoulette': 0,
-     'MoneyLostinRoulette': 0,
-     'MoneyGotfromDailyRewards': 0, 'MoneyGotfromWorkPayments': 0,
-     'TimeJoined': 0
-     }, "DEFAULT_SHOP_INFO": {
-        "banana": [100, 10],
-        "pineapple": [200, 5]
-        }
-}
+                    {"server-info":
+                         {"shop": dict(),
+                          "members": 0,
+                          "enter-role-id": 836891624398389298
+                          }
+                     }, "DEFAULT_MEMBER_INFO":
+                    {'Inventory': dict(), 'wallet': 0, 'bank': 0, 'isPlayingRoulette': False, 'lastMessage': None,
+                     'isPlayingHL': False,
+                     'TotalGamesPlayed': 0,
+                     'DicesPlayed': 0, 'RoulettesPlayed': 0, 'SlotsPlayed': 0, 'HighLowsPlayed': 0,
+                     'DailyRewardsCollected': 0, 'WorksCollected': 0,
+                     'RobAttempts': 0, 'SuccessfulRobberies': 0, 'TimesRobbed': 0, 'TimesSuccessfullyRobbed': 0,
+                     'TotalRobberyProfit': 0,
+                     'MoneyWon': 0, 'MoneyLost': 0, 'MoneyWoninDice': 0, 'MoneyLostinDice': 0, 'MoneyWoninSlots': 0,
+                     'MoneyLostinSlots': 0, 'MoneyWoninHighLow': 0, 'MoneyLostinHighLow': 0, 'MoneyWoninRoulette': 0,
+                     'MoneyLostinRoulette': 0,
+                     'MoneyGotfromDailyRewards': 0, 'MoneyGotfromWorkPayments': 0
+                     }, "DEFAULT_SHOP_INFO":{
+                        "banana": [100, 10],
+                        "pineapple": [200, 5]
+                    }, "DEFAULT_INVENTORY": {
+                        "banana": 1,
+                        "apple": 2
+                    }
+                }
 
 
 # data loaders
@@ -77,6 +80,17 @@ def load_shop_data(guild):
     return server_info["shop"]
 
 
+def load_inventory_data(member, guild):
+    member_data = load_member_data(member, guild)
+
+    if "Inventory" not in member_data:
+        create_default_inventory_data(member, guild)
+
+        member_data = load_member_data(member, guild)
+
+    return member_data["Inventory"]
+
+
 # data savers
 def save_member_data(data, member, guild):
     guild_data = load_guild_data(guild)
@@ -107,11 +121,18 @@ def save_shop_data(shop_data, guild):
     save_server_data(server_data, guild)
 
 
+def save_inventory_data(inventory_data, member, guild):
+    member_data = load_member_data(member, guild)
+    member_data["Inventory"] = inventory_data
+    save_member_data(member_data, member, guild)
+
+
 # data management
 def create_default_member_data(member, guild):
     guild_data = load_guild_data(guild)
     member_data = DEFAULT_DATA["DEFAULT_MEMBER_INFO"]
-    guild_data[member.id] = member_data
+    member_data["Inventory"] = DEFAULT_DATA["DEFAULT_INVENTORY"]
+    guild_data[str(member.id)] = member_data
 
     save_guild_data(guild_data, guild)
 
@@ -126,6 +147,7 @@ def create_default_guild_data(guild):
     for i in members:
         if not i.bot:
             guild_data[str(i.id)] = DEFAULT_DATA["DEFAULT_MEMBER_INFO"]
+            guild_data[str(i.id)]["Inventory"] = DEFAULT_DATA["DEFAULT_INVENTORY"]
             members_amt += 1
 
     guild_data["server-info"]["members"] = members_amt
@@ -159,3 +181,9 @@ def create_default_shop_data(guild):
     server_data["shop"] = DEFAULT_DATA["DEFAULT_SHOP_INFO"]
 
     save_server_data(server_data, guild)
+
+
+def create_default_inventory_data(member, guild):
+    member_data = load_member_data(member, guild)
+    member_data["Inventory"] = DEFAULT_DATA["DEFAULT_INVENTORY"]
+    save_member_data(member_data, member, guild)

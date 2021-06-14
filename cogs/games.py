@@ -24,8 +24,8 @@ class Games(commands.Cog):
         if wallet_money >= amt > 0:
             member_data['DicesPlayed'] += 1
             member_data['TotalGamesPlayed'] += 1
-            author_values = [ri(1, 6), ri(1, 6)]
-            opponent_values = [ri(1, 6), ri(1, 6)]
+            author_values = [random.randint(1, 6), random.randint(1, 6)]
+            opponent_values = [random.randint(1, 6), random.randint(1, 6)]
             author_sum = sum(author_values)
             opponent_sum = sum(opponent_values)
             em = None
@@ -163,8 +163,8 @@ class Games(commands.Cog):
             if wallet_bal >= bet > 0:
                 member_data['TotalGamesPlayed'] += 1
                 member_data['HighLowsPlayed'] += 1
-                secret = ri(0, 100)
-                hint = ri(40, 60)
+                secret = random.randint(0, 100)
+                hint = random.randint(40, 60)
                 answers = ["high", "low", "jackpot"]
                 if hint > secret:
                     answer = 'low'
@@ -261,7 +261,7 @@ class Games(commands.Cog):
                             save_member_data(md, context.author, context.guild)
 
                         if not random.choice(chamber):
-                            total_won += amt
+                            total_won += int(amt * ROULETTE_MULTIPLIER * (loaded_rounds/2))
 
                             em = discord.Embed(title=":gun: Roulette",
                                                description=":hot_face: **You survived!**",
@@ -345,12 +345,12 @@ class Games(commands.Cog):
         else:
             await ctx.channel.send("Enter **valid** values!")
 
-
     @commands.command()
     async def rob(self, message, member: discord.Member = None):
-        if member != None and member != message.author:
+        if member is not None and member != message.author:
             author_data = load_member_data(message.author, message.guild)
             member_data = load_member_data(member, message.guild)
+            print("loading info")
             author_money = [author_data['wallet'], author_data['bank']]
             member_money = [member_data['wallet'], member_data['bank']]
             mwbal = member_data['wallet']
@@ -358,8 +358,8 @@ class Games(commands.Cog):
                 author_data['RobAttempts'] += 1
                 member_data['TimesRobbed'] += 1
 
-                robamount = ri(int(0.1 * mwbal), int(0.3 * mwbal))
-                robchance = ri(25, 50)
+                robamount = random.randint(int(0.1 * mwbal), int(0.3 * mwbal))
+                robchance = random.randint(25, 50)
                 result = random.randint(0, 100)
                 if result < robchance:
                     member_money[0], author_money[0] = rob_money(message.author, member, robamount)
@@ -418,7 +418,7 @@ class Games(commands.Cog):
             else:
                 await message.channel.send(f":x: **{member.mention} does not have anything in his wallet.**")
         else:
-            if member == None:
+            if member is None:
                 await message.channel.send(":x: **Please write someone to rob))**")
             else:
                 await message.channel.send(":x: **You can not rob yourself! :rofl:**")

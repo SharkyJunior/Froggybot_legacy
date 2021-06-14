@@ -91,7 +91,7 @@ class Utils(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def addmoney(self, message, amt, member: discord.Member = None):
         if int(amt) > 0 and float(amt) % 1 == 0:
-            if member == None:
+            if member is None:
                 member_data = load_member_data(message.author, message.guild)
                 bal = member_data['bank']
                 add_money(message.author, amt)
@@ -118,7 +118,7 @@ class Utils(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def removemoney(self, message, amt, member: discord.Member = None):
         if int(amt) > 0 and float(amt) % 1 == 0:
-            if member == None:
+            if member is None:
                 member_data = load_member_data(message.author, message.guild)
                 bal = member_data['bank']
                 remove_money(message.author, amt)
@@ -145,7 +145,7 @@ class Utils(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def setmoney(self, message, amt, member: discord.Member = None):
         if int(amt) >= 0 and float(amt) % 1 == 0:
-            if member == None:
+            if member is None:
                 member_data = load_member_data(message.author, message.guild)
                 bal = member_data['bank']
                 set_money(message.author, amt)
@@ -257,7 +257,7 @@ class Utils(commands.Cog):
 
     @commands.command(aliases=['bal'])
     async def balance(self, message, member: discord.Member = None):
-        if member == None:
+        if member is None:
             member_data = load_member_data(message.author, message.guild)
 
             embed = discord.Embed(title=f"{message.author.display_name}'s Balance", colour=message.author.color)
@@ -275,7 +275,7 @@ class Utils(commands.Cog):
             await message.channel.send(embed=embed)
 
     @commands.command()
-    async def send(self, message, amt, member: discord.Member = None):
+    async def sendmoney(self, message, amt, member: discord.Member = None):
         author_data = load_member_data(message.author, message.guild)
         member_data = load_member_data(member, message.guild)
         if author_data['bank'] >= int(amt) > 0 and message.author != member:
@@ -304,11 +304,10 @@ class Utils(commands.Cog):
             else:
                 await message.channel.send(":x: **You can not send money to yourself!**")
 
-    # clearmoney command
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def clearmoney(self, message, member: discord.Member = None):
-        if member == None:
+        if member is None:
             member_data = load_member_data(message.author, message.guild)
             member_data['wallet'] = 0
             member_data['bank'] = 0
@@ -321,6 +320,81 @@ class Utils(commands.Cog):
             member_data['bank'] = 0
             save_member_data(member_data, member, message.guild)
             await message.channel.send(f":white_check_mark: **Cleared {member.mention}'s account successfully!**")
+
+    @commands.command()
+    async def senditem(self, ctx, quantity, item, member: discord.Member):
+        if quantity.isnumeric():
+            quantity = int(quantity)
+            if quantity > 0:
+                member_inventory = load_inventory_data(ctx.author, ctx.guild)
+                if not (member_inventory.get(item, None) is None or member_inventory.get(item, None) == 0):
+                    if member_inventory[item] >= quantity:
+                        send_item(ctx.author, member, ctx.guild, item, quantity)
+                        await ctx.channel.send(f"{quantity} {item} sent successfully to {member.mention}!")
+                    else:
+                        await ctx.channel.send(f"You don't have {item} in this quantity!")
+                else:
+                    await ctx.channel.send("You don't have this item!")
+            else:
+                await ctx.channel.send("Enter a **valid** number!")
+        else:
+            await ctx.channel.send("Enter a **valid** value!")
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def additem(self, ctx, quantity, item, member: discord.Member = None):
+        if quantity.isnumeric():
+            quantity = int(quantity)
+            if quantity > 0:
+                if member is None:
+                    member = ctx.author
+                add_item(member, ctx.guild, item, quantity)
+                await ctx.channel.send(f"{quantity} {item} added successfully to {member.mention} inventory!")
+            else:
+                await ctx.channel.send("Enter a **valid** number!")
+        else:
+            await ctx.channel.send("Enter a **valid** value!")
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def removeitem(self, ctx, quantity, item, member: discord.Member = None):
+        if quantity.isnumeric():
+            quantity = int(quantity)
+            if quantity > 0:
+                if member is None:
+                    member = ctx.author
+                member_inventory = load_inventory_data(member, ctx.guild)
+                if quantity > member_inventory[item]:
+                    quantity = member_inventory[item]
+
+                remove_item(member, ctx.guild, item, quantity)
+                await ctx.channel.send(f"{quantity} {item} removed successfully from {member.mention} inventory!")
+            else:
+                await ctx.channel.send("Enter a **valid** number!")
+        elif quantity == "all":
+            if member is None:
+                member = ctx.author
+            member_inventory = load_inventory_data(member, ctx.guild)
+            quantity = member_inventory[item]
+
+            remove_item(member, ctx.guild, item, quantity)
+            await ctx.channel.send(f"All {item} removed successfully from {member.mention} inventory!")
+        else:
+            await ctx.channel.send("Enter a **valid** value!")
+
+    @commands.command()
+    async def inventory(self, ctx, member: discord.Member = None):
+        if member is None:
+            member = ctx.author
+
+        member_inventory = load_inventory_data(member, ctx.guild)
+
+        await ctx.channel.send(f"{member.mention} inventory:")
+
+        for i in member_inventory.keys():
+            await ctx.channel.send(f"{member_inventory[i]} {i}")
+
+
 # activating cog
 def setup(bot):
     bot.add_cog(Utils(bot))

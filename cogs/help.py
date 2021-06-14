@@ -84,9 +84,10 @@ class Help(commands.Cog):
 
     @help.command()
     async def roulette(self, message):
-        em = discord.Embed(title="roulette", description="Try to survive in russian roulette and win coins!",
+        em = discord.Embed(title="roulette", description="Try to survive in russian roulette and win coins!\n"
+                                                         "More rounds you load - more you win",
                            colour=message.author.color)
-        em.add_field(name="**Syntax**", value="`#roulette [bet]`")
+        em.add_field(name="**Syntax**", value="`#roulette [bet] [loaded rounds (up to 5)]`")
         em.add_field(name="**Aliases**", value="`#rt`")
         await message.send(embed=em)
 
@@ -127,7 +128,7 @@ class Help(commands.Cog):
         await message.send(embed=em)
 
     @help.command()
-    async def send(self, message):
+    async def sendmoney(self, message):
         em = discord.Embed(title="send",
                            description="Transfers a certain amount of money from your bank account to a person's bank account",
                            colour=message.author.color)

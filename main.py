@@ -26,19 +26,19 @@ activity = discord.Game(name='#help')
 bot = commands.Bot(command_prefix=PREFIX, activity=activity, intents=intents)
 bot.remove_command('help')
 
-data_filename = 'data.pickle'
-
 
 @bot.command()
 @commands.has_permissions(administrator=True)
 async def load(message, extension):
     bot.load_extension(f'cogs.{extension}')
+    await message.channel.send(f"Successfully loaded `{extension}` up!")
 
 
 @bot.command()
 @commands.has_permissions(administrator=True)
 async def unload(message, extension):
     bot.unload_extension(f'cogs.{extension}')
+    await message.channel.send(f"Successfully unloaded `{extension}`!")
 
 
 @bot.command()
@@ -46,6 +46,7 @@ async def unload(message, extension):
 async def reload(message, extension):
     bot.unload_extension(f'cogs.{extension}')
     bot.load_extension(f'cogs.{extension}')
+    await message.channel.send(f"Successfully reloaded `{extension}`!")
 
 
 async def change_status():
@@ -68,7 +69,7 @@ async def on_ready():
 
 @bot.event
 async def on_guild_join(guild):
-    setup_channel = random.choice(guild.text_channels)
+    setup_channel = guild.text_channels[0]
     await setup_channel.send("Hello, I'm Froggy!")
     create_default_guild_data(guild)
 
@@ -100,11 +101,11 @@ async def on_member_left(member):
 
 @bot.command()
 async def test(ctx):
-    await ctx.channel.send(load_server_data(ctx.guild))
+    pass
 
 
 @bot.command()
-async def cdmd(ctx, member: discord.User):
+async def cdmd(ctx, member: discord.User = None):
     if member is None:
         member = ctx.author
     create_default_member_data(member, ctx.guild)
@@ -133,6 +134,14 @@ async def cdsd(ctx):
 async def cdshd(ctx):
     create_default_shop_data(ctx.guild)
     await ctx.channel.send("Default shop info created successfully!")
+
+
+@bot.command()
+async def cdid(ctx, member: discord.User = None):
+    if member is None:
+        member = ctx.author
+    create_default_inventory_data(member, ctx.guild)
+    await ctx.channel.send(f"Default inventory created for {member.mention} successfully!")
 
 
 @bot.command()
@@ -316,6 +325,44 @@ async def on_command_error(ctx, exc):
         print(exc)
 
 
+def add_item(member, guild, item, quantity):
+    member_inventory = load_inventory_data(member, guild)
+    if item in member_inventory:
+        member_inventory[item] += quantity
+    else:
+        member_inventory[item] = quantity
+
+    save_inventory_data(member_inventory, member, guild)
+    return member_inventory
+
+
+def remove_item(member, guild, item, quantity):
+    member_inventory = load_inventory_data(member, guild)
+    if item in member_inventory:
+        member_inventory[item] -= quantity
+        if member_inventory[item] == 0:
+            del member_inventory[item]
+    else:
+        member_inventory[item] = -quantity
+
+    save_inventory_data(member_inventory, member, guild)
+    return member_inventory
+
+
+def set_item(member, guild, item, quantity):
+    member_inventory = load_inventory_data(member, guild)
+
+    member_inventory[item] = quantity
+
+    save_inventory_data(member_inventory, member, guild)
+    return member_inventory
+
+
+def send_item(sender, receiver, guild, item, quantity):
+    remove_item(sender, guild, item, quantity)
+    add_item(receiver, guild, item, quantity)
+
+
 # adds money to user's bank account and returns the final amount
 def add_money(user, amount):
     member_data = load_member_data(user, user.guild)
@@ -391,12 +438,12 @@ def send_money(sender, receiver, amount):
         sender_data['bank'] -= int(amount)
         receiver_data['bank'] += int(amount)
     else:
-        sender_data['wallet'] -= sender_data.bank + int(amount)
+        sender_data['wallet'] -= sender_data['bank'] + int(amount)
         sender_data['bank'] = 0
         receiver_data['bank'] += int(amount)
     save_member_data(sender_data, sender, sender.guild)
     save_member_data(receiver_data, receiver, receiver.guild)
-    return sender_data['wallet'], sender_data['bank'], receiver_data['bank'], receiver_data['bank']
+    return sender_data['wallet'], sender_data['bank'], receiver_data['wallet'], receiver_data['bank']
 
 
 def rob_money(robber, victim, amount):
@@ -415,44 +462,6 @@ def to_sec(time):
         return int(time[:-1]) * time_convert[time[-1]]
     except:
         return 'Error'
-
-
-def save_server_data(guild, data):
-    data_loaded = load_guild_data(guild)
-    if 'server-info' in data_loaded:
-        server = data_loaded['server-info']
-    else:
-        server = dict()
-    data_loaded['server-info'].update(data)
-    save_guild_data(server, guild)
-
-
-def load_server_data(guild):
-    guild_data = load_guild_data(guild)
-    return guild_data['server-info']
-
-
-# shop functions
-def save_shop_data(guild, data):
-    server_info = load_server_data(guild)
-    if 'shop' in server_info:
-        shop_data = server_info['shop']
-    else:
-        shop_data = dict()
-
-    server_info['shop'].update(shop_data)
-    save_server_data(guild, server_info)
-
-
-def load_shop_data(guild):
-    return load_server_data(guild)
-
-
-def shop_add(guild, name, desc, price, usable):
-    shop_data = load_shop_data(guild)
-    shop_data[name] = {"description": desc, "price": price, "usable": usable}
-    save_shop_data(guild, shop_data)
-
 
 # importing cogs
 for filename in os.listdir('./cogs'):
