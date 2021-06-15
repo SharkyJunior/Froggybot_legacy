@@ -26,7 +26,7 @@ class Utils(commands.Cog):
             banks = sorted(banks, key=operator.itemgetter(1), reverse=True)
             em = discord.Embed(title=f"{message.guild.name}'s bank leaderboard", colour=message.author.color)
             if banks[0][1] > 0:
-                em.add_field(name=":bank: **Server total**", value=allmoney, inline=False)
+                em.add_field(name=":bank: **Server total**", value=str(allmoney), inline=False)
                 em.add_field(name=f":first_place: {banks[0][0].display_name}", value=banks[0][1], inline=False)
             else:
                 em.set_footer(text="Nobody here has never earned a penny.")
@@ -61,7 +61,7 @@ class Utils(commands.Cog):
             banks = sorted(banks, key=operator.itemgetter(1), reverse=True)
             em = discord.Embed(title=f"{message.guild.name}'s wallet leaderboard", colour=message.author.color)
             if banks[0][1] > 0:
-                em.add_field(name=":bank: **Server total**", value=allmoney, inline=False)
+                em.add_field(name=":bank: **Server total**", value=str(allmoney), inline=False)
                 em.add_field(name=f":first_place: {banks[0][0].display_name}", value=banks[0][1], inline=False)
             else:
                 em.set_footer(text="Nobody here has never withdrawn a penny.")
@@ -92,52 +92,34 @@ class Utils(commands.Cog):
     async def addmoney(self, message, amt, member: discord.Member = None):
         if int(amt) > 0 and float(amt) % 1 == 0:
             if member is None:
-                member_data = load_member_data(message.author, message.guild)
-                bal = member_data['bank']
-                add_money(message.author, amt)
-                bal1 = bal + int(amt)
-                em = discord.Embed(title=':white_check_mark: Operation complete!',
-                                   colour=discord.Color.from_rgb(60, 179, 113))
-                em.add_field(name="Recipient", value=message.author.mention)
-                em.add_field(name="Bank", value=":inbox_tray: **{}:coin: --> {}:coin:**".format(bal, bal1))
-                await message.channel.send(embed=em)
-            else:
-                member_data = load_member_data(member, message.guild)
-                bal = member_data['bank']
-                add_money(member, amt)
-                bal1 = bal + int(amt)
-                em = discord.Embed(title=':white_check_mark: Operation complete!',
-                                   colour=discord.Color.from_rgb(60, 179, 113))
-                em.add_field(name="Recipient", value=member.mention)
-                em.add_field(name="Bank", value=":inbox_tray: **{}:coin: --> {}:coin:**".format(bal, bal1))
-                await message.channel.send(embed=em)
+                member = message.author
+            member_data = load_member_data(member, message.guild)
+            bal = member_data['bank']
+            add_money(member, message.guild, amt)
+            bal1 = bal + int(amt)
+            em = discord.Embed(title=':white_check_mark: Operation complete!',
+                               colour=discord.Color.from_rgb(60, 179, 113))
+            em.add_field(name="Recipient", value=member.mention)
+            em.add_field(name="Bank", value=":inbox_tray: **{}:coin: --> {}:coin:**".format(bal, bal1))
+            await message.channel.send(embed=em)
         else:
             await message.channel.send(":x: **Please enter valid number.**".format(message.author.mention))
 
-    @commands.command(aliases=['rm'])
+    @commands.command()
     @commands.has_permissions(administrator=True)
     async def removemoney(self, message, amt, member: discord.Member = None):
         if int(amt) > 0 and float(amt) % 1 == 0:
             if member is None:
-                member_data = load_member_data(message.author, message.guild)
-                bal = member_data['bank']
-                remove_money(message.author, amt)
-                bal1 = bal - int(amt)
-                embed = discord.Embed(title=':white_check_mark: Operation complete!',
-                                      colour=discord.Color.from_rgb(60, 179, 113))
-                embed.add_field(name="Recipient", value=message.author.mention)
-                embed.add_field(name="Bank", value=":outbox_tray: **{}:coin: --> {}:coin:**".format(bal, bal1))
-                await message.channel.send(embed=embed)
-            else:
-                member_data = load_member_data(member, message.guild)
-                bal = member_data['bank']
-                remove_money(member, amt)
-                bal1 = bal - int(amt)
-                em = discord.Embed(title=':white_check_mark: Operation complete!',
-                                   colour=discord.Color.from_rgb(60, 179, 113))
-                em.add_field(name="Recipient", value=member.mention)
-                em.add_field(name="Bank", value=":outbox_tray: **{}:coin: --> {}:coin:**".format(bal, bal1))
-                await message.channel.send(embed=em)
+                member = message.author
+            member_data = load_member_data(member, message.guild)
+            bal = member_data['bank']
+            remove_money(member, message.guild, amt)
+            bal1 = bal - int(amt)
+            em = discord.Embed(title=':white_check_mark: Operation complete!',
+                               colour=discord.Color.from_rgb(60, 179, 113))
+            em.add_field(name="Recipient", value=member.mention)
+            em.add_field(name="Bank", value=":outbox_tray: **{}:coin: --> {}:coin:**".format(bal, bal1))
+            await message.channel.send(embed=em)
         else:
             await message.channel.send(":x: **Please enter valid number.**".format(message.author.mention))
 
@@ -146,25 +128,16 @@ class Utils(commands.Cog):
     async def setmoney(self, message, amt, member: discord.Member = None):
         if int(amt) >= 0 and float(amt) % 1 == 0:
             if member is None:
-                member_data = load_member_data(message.author, message.guild)
-                bal = member_data['bank']
-                set_money(message.author, amt)
-                bal1 = int(amt)
-                em = discord.Embed(title=':white_check_mark: Operation complete!',
-                                   colour=discord.Color.from_rgb(60, 179, 113))
-                em.add_field(name="Recipient", value=message.author.mention)
-                em.add_field(name="Bank", value=":inbox_tray: **{}:coin: --> {}:coin:**".format(bal, bal1))
-                await message.channel.send(embed=em)
-            else:
-                member_data = load_member_data(member, message.guild)
-                bal = member_data['bank']
-                set_money(member, amt)
-                bal1 = int(amt)
-                em = discord.Embed(title=':white_check_mark: Operation complete!',
-                                   colour=discord.Color.from_rgb(60, 179, 113))
-                em.add_field(name="Recipient", value=member.mention)
-                em.add_field(name="Bank", value=":inbox_tray: **{}:coin: --> {}:coin:**".format(bal, bal1))
-                await message.channel.send(embed=em)
+                member = message.author
+            member_data = load_member_data(member, message.guild)
+            bal = member_data['bank']
+            set_money(member, message.guild, amt)
+            bal1 = int(amt)
+            em = discord.Embed(title=':white_check_mark: Operation complete!',
+                               colour=discord.Color.from_rgb(60, 179, 113))
+            em.add_field(name="Recipient", value=member.mention)
+            em.add_field(name="Bank", value=":inbox_tray: **{}:coin: --> {}:coin:**".format(bal, bal1))
+            await message.channel.send(embed=em)
         else:
             await message.channel.send(":x: **Please enter valid number.**".format(message.author.mention))
 
@@ -175,7 +148,7 @@ class Utils(commands.Cog):
             if member_data['bank'] >= int(amt) > 0:
                 bbal = member_data['bank']
                 wbal = member_data['wallet']
-                withdraw_money(message.author, amt)
+                withdraw_money(message.author, message.guild, amt)
                 bbal1 = bbal - int(amt)
                 wbal1 = wbal + int(amt)
 
@@ -195,7 +168,7 @@ class Utils(commands.Cog):
             if member_data['bank'] > 0:
                 bbal = member_data['bank']
                 wbal = member_data['wallet']
-                withdraw_money(message.author, bbal)
+                withdraw_money(message.author, message.guild, bbal)
                 bbal1 = 0
                 wbal1 = bbal + wbal
 
@@ -216,7 +189,7 @@ class Utils(commands.Cog):
             if member_data['wallet'] >= int(amt) > 0:
                 bbal = member_data['bank']
                 wbal = member_data['wallet']
-                deposit_money(message.author, int(amt))
+                deposit_money(message.author, message.guild, int(amt))
                 fee = int(0.1 * int(amt))
                 bbal1 = bbal + int(0.9 * int(amt))
                 wbal1 = wbal - int(amt)
@@ -239,7 +212,7 @@ class Utils(commands.Cog):
             if member_data['wallet'] > 0:
                 bbal = member_data['bank']
                 wbal = member_data['wallet']
-                deposit_money(message.author, wbal)
+                deposit_money(message.author, message.guild, wbal)
                 fee = int(0.1 * wbal)
                 bbal1 = bbal + int(0.9 * wbal)
                 wbal1 = 0
@@ -281,7 +254,7 @@ class Utils(commands.Cog):
         if author_data['bank'] >= int(amt) > 0 and message.author != member:
             abbal = author_data['bank']
             mbbal = member_data['bank']
-            send_money(message.author, member, amt)
+            send_money(message.author, member, message.guild, amt)
             abbal1 = abbal - int(amt)
             mbbal1 = mbbal + int(amt)
 
@@ -393,6 +366,16 @@ class Utils(commands.Cog):
 
         for i in member_inventory.keys():
             await ctx.channel.send(f"{member_inventory[i]} {i}")
+
+    @commands.command()
+    async def level(self, ctx, member: discord.Member = None):
+        if member is None:
+            member = ctx.author
+
+        member_data = load_member_data(member, ctx.guild)
+        level = member_data["Level"]
+
+        await ctx.channel.send(f"{member.mention} Your level's {level}")
 
 
 # activating cog

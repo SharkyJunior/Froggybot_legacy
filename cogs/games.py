@@ -40,7 +40,7 @@ class Games(commands.Cog):
                              value="{}:game_die: and {}:game_die:".format(opponent_values[0], opponent_values[1]))
                 member_data['MoneyWon'] += amt
                 member_data['MoneyWoninDice'] += amt
-                wallet_money = add_wmoney(message.author, amt)
+                wallet_money = add_wmoney(message.author, message.guild, amt)
             elif author_sum > opponent_sum and author_values[0] == author_values[1]:
                 em = discord.Embed(title="**Dice** :game_die:",
                                    description=":inbox_tray: Wallet: {}:coin: --> {}:coin: **(Double!)** ".format(
@@ -52,7 +52,7 @@ class Games(commands.Cog):
                              value="{}:game_die: and {}:game_die:".format(opponent_values[0], opponent_values[1]))
                 member_data['MoneyWon'] += 2 * amt
                 member_data['MoneyWoninDice'] += 2 * amt
-                wallet_money = add_wmoney(message.author, 2 * amt)
+                wallet_money = add_wmoney(message.author, message.guild, 2 * amt)
             elif author_sum == opponent_sum:
                 em = discord.Embed(title="**Dice** :game_die:", description="It's a draw get your money back",
                                    colour=discord.Color.from_rgb(255, 140, 0))
@@ -71,7 +71,7 @@ class Games(commands.Cog):
                              value="{}:game_die: and {}:game_die:".format(opponent_values[0], opponent_values[1]))
                 member_data['MoneyLost'] += amt
                 member_data['MoneyLostinDice'] += amt
-                wallet_money = remove_wmoney(message.author, amt)
+                wallet_money = remove_wmoney(message.author, message.guild, amt)
             else:
                 print("smth strange happened")
                 print("{} and {} vs {} and {}".format(author_values[0], author_values[1], opponent_values[0],
@@ -102,7 +102,7 @@ class Games(commands.Cog):
             # result = [":gem:", ":gem:", ":gem:"]
             # result = [":cherries:", ":cherries:", ":cherries:"]
             if all([i == result[0] for i in result[1::]]) and result[0] == ":gem:":
-                wallet_money = add_wmoney(message.author, 100 * int(amt))
+                wallet_money = add_wmoney(message.author, message.guild, 100 * int(amt))
                 member_data['MoneyWon'] += 100 * int(amt)
                 member_data['MoneyWoninSlots'] += 100 * int(amt)
                 em = discord.Embed(title=":slot_machine: **MEGA WIN**",
@@ -111,7 +111,7 @@ class Games(commands.Cog):
                 em.add_field(name="Wallet",
                              value=f":inbox_tray: {wallet_money}:coin: --> {wallet_money + 100 * int(amt)}:coin:")
             elif all([i == result[0] for i in result[1::]]) and result[0] == ":cherries:":
-                wallet_money = add_wmoney(message.author, 50 * int(amt))
+                wallet_money = add_wmoney(message.author, message.guild, 50 * int(amt))
                 member_data['MoneyWon'] += 50 * int(amt)
                 member_data['MoneyWoninSlots'] += 50 * int(amt)
                 em = discord.Embed(title=":slot_machine: **HUGE WIN**",
@@ -120,7 +120,7 @@ class Games(commands.Cog):
                 em.add_field(name="Wallet",
                              value=f":inbox_tray: {wallet_money}:coin: --> {wallet_money + 50 * int(amt)}:coin:")
             elif all([i == result[0] for i in result[1::]]):
-                wallet_money = add_wmoney(message.author, 20 * int(amt))
+                wallet_money = add_wmoney(message.author, message.guild, 20 * int(amt))
                 member_data['MoneyWon'] += 20 * int(amt)
                 member_data['MoneyWoninSlots'] += 20 * int(amt)
                 em = discord.Embed(title=":slot_machine: **BINGO**",
@@ -129,7 +129,7 @@ class Games(commands.Cog):
                 em.add_field(name="Wallet",
                              value=f":inbox_tray: {wallet_money}:coin: --> {wallet_money + 20 * int(amt)}:coin:")
             elif result[0] == result[1] or result[0] == result[2] or result[1] == result[2]:
-                wallet_money = add_wmoney(message.author, 5 * int(amt))
+                wallet_money = add_wmoney(message.author, message.guild, 5 * int(amt))
                 member_data['MoneyWon'] += 5 * int(amt)
                 member_data['MoneyWoninSlots'] += 5 * int(amt)
                 em = discord.Embed(title=":slot_machine: **WIN**",
@@ -138,7 +138,7 @@ class Games(commands.Cog):
                 em.add_field(name="Wallet",
                              value=f":inbox_tray: {wallet_money}:coin: --> {wallet_money + 5 * int(amt)}:coin:")
             else:
-                wallet_money = remove_wmoney(message.author, int(amt))
+                wallet_money = remove_wmoney(message.author, message.guild, int(amt))
                 member_data['MoneyLost'] += int(amt)
                 member_data['MoneyLostinSlots'] += int(amt)
                 em = discord.Embed(title=":slot_machine: **LOSS**", description=f"{result[0]} {result[1]} {result[2]}",
@@ -362,7 +362,7 @@ class Games(commands.Cog):
                 robchance = random.randint(25, 50)
                 result = random.randint(0, 100)
                 if result < robchance:
-                    member_money[0], author_money[0] = rob_money(message.author, member, robamount)
+                    member_money[0], author_money[0] = rob_money(message.author, member, message.guild, robamount)
                     author_data['SuccessfulRobberies'] += 1
                     member_data['TimesSuccessfullyRobbed'] += 1
                     author_data['TotalRobberyProfit'] += robamount
@@ -388,6 +388,7 @@ class Games(commands.Cog):
 
                     author_money[0], author_money[1], member_money[0], member_money[1] = send_money(message.author,
                                                                                                     member,
+                                                                                                    message.guild,
                                                                                                     3 * robamount)
 
                     em = discord.Embed(title=":man_police_officer: {} was caught!".format(message.author.display_name),

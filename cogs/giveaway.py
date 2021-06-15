@@ -15,7 +15,7 @@ class Giveaway(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     async def giveaway_start(self, message, time, winners, channel: discord.TextChannel = None, *, prize=''):
         time = to_sec(time)
-        if time != "Error" and channel != None and prize != '':
+        if time != "Error" and channel is not None and prize != '':
             endtime = datetime.datetime.utcnow() + datetime.timedelta(seconds=time)
             embed = discord.Embed(title=":tada: Giveaway!", description=f'**{prize}**\nReact with :tada: to enter!',
                                   color=message.author.color, timestamp=endtime)

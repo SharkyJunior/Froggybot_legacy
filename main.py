@@ -1,6 +1,7 @@
 import os.path
 import random
-# import datetime
+import math
+import datetime
 import asyncio
 import time
 
@@ -19,12 +20,25 @@ DAILY_LIMIT = 2400
 DAILY_MULTIPLIER = 0.4
 WORK_LIMIT = 100
 ENTER_ROLE_ID = 836891624398389298
+MESSAGES_PER_LEVEL_MODIFIER = 1.4
 
 intents = discord.Intents.all()
 intents.members = True
 activity = discord.Game(name='#help')
 bot = commands.Bot(command_prefix=PREFIX, activity=activity, intents=intents)
 bot.remove_command('help')
+
+
+@bot.listen('on_message')
+async def message_tracker(message):
+    if not message.author.bot:
+        member_data = load_member_data(message.author, message.guild)
+        member_data["Messages_Quantity"] += 1
+        if member_data["Messages_Quantity"] >= ((member_data["Level"]+1)*MESSAGES_PER_LEVEL_MODIFIER)**2:
+            member_data["Level"] += 1
+            level = member_data["Level"]
+            await message.channel.send(f"{message.author.mention} Congrats! You achieved level {level}")
+        save_member_data(member_data, message.author, message.guild)
 
 
 @bot.command()
@@ -242,7 +256,7 @@ async def daily(ctx):
     bank_money = member_data['bank']
     if int(bal * DAILY_MULTIPLIER) > DAILY_LIMIT:
         amt = int(bank_money * DAILY_MULTIPLIER)
-        bank_money = add_money(ctx.message.author, amt)
+        bank_money = add_money(ctx.message.author, ctx.guild, amt)
         member_data['MoneyGotfromDailyRewards'] += amt
         bal1 = bal + int(member_data['bank'] * DAILY_MULTIPLIER)
 
@@ -251,7 +265,7 @@ async def daily(ctx):
         em.add_field(name="Bank", value=":inbox_tray: **{}:coin: --> {}:coin:**".format(bal, bal1))
         await ctx.message.channel.send(embed=em)
     else:
-        bank_money = add_money(ctx.message.author, DAILY_LIMIT)
+        bank_money = add_money(ctx.message.author, ctx.guild, DAILY_LIMIT)
         member_data['MoneyGotfromDailyRewards'] += DAILY_LIMIT
         bal1 = bal + DAILY_LIMIT
 
@@ -273,7 +287,7 @@ async def work(ctx):
     bal = member_data['bank']
     work_multiplier = random.uniform(0.05, 0.1)
     if int(bal * work_multiplier) > WORK_LIMIT:
-        bank_money = add_money(ctx.message.author, int(member_data['bank'] * work_multiplier))
+        bank_money = add_money(ctx.message.author, ctx.guild, int(member_data['bank'] * work_multiplier))
         member_data['MoneyGotfromWorkPayments'] += int(member_data['bank'] * work_multiplier)
         bal1 = bal + int(member_data['bank'] * work_multiplier)
         em = discord.Embed(
@@ -282,7 +296,7 @@ async def work(ctx):
         em.add_field(name="Bank", value=":inbox_tray: **{}:coin: --> {}:coin:**".format(bal, bal1))
         await ctx.message.channel.send(embed=em)
     else:
-        bank_money = add_money(ctx.message.author, WORK_LIMIT)
+        bank_money = add_money(ctx.message.author, ctx.guild, WORK_LIMIT)
         member_data['MoneyGotfromWorkPayments'] += WORK_LIMIT
         bal1 = bal + WORK_LIMIT
 
@@ -325,6 +339,29 @@ async def on_command_error(ctx, exc):
         print(exc)
 
 
+def buy_item(member, guild, item, quantity):
+    shop_data = load_shop_data(guild)
+
+    remove_money(member, guild, shop_data[item][0]*quantity)
+    member_data = add_item(member, guild, item, quantity)
+
+    shop_data[item][1] -= quantity
+
+    save_shop_data(shop_data, guild)
+
+    return member_data
+
+
+def sell_item(member, guild, item, quantity):
+    shop_data = load_shop_data(guild)
+
+    remove_item(member, guild, item, quantity)
+    add_money(member, guild, shop_data[item][0]*quantity)
+
+    shop_data[item][1] += quantity
+    save_shop_data(shop_data, guild)
+
+
 def add_item(member, guild, item, quantity):
     member_inventory = load_inventory_data(member, guild)
     if item in member_inventory:
@@ -364,76 +401,76 @@ def send_item(sender, receiver, guild, item, quantity):
 
 
 # adds money to user's bank account and returns the final amount
-def add_money(user, amount):
-    member_data = load_member_data(user, user.guild)
+def add_money(user, guild, amount):
+    member_data = load_member_data(user, guild)
     member_data['bank'] += int(amount)
-    save_member_data(member_data, user, user.guild)
+    save_member_data(member_data, user, guild)
     return member_data['bank']
 
 
 # adds money to user's wallet and returns the final amount
-def add_wmoney(user, amount):
-    member_data = load_member_data(user, user.guild)
+def add_wmoney(user, guild, amount):
+    member_data = load_member_data(user, guild)
     member_data['wallet'] += int(amount)
-    save_member_data(member_data, user, user.guild)
+    save_member_data(member_data, user, guild)
     return member_data['wallet']
 
 
 # removes money from user's bank account and returns the final amount
-def remove_money(user, amount):
-    member_data = load_member_data(user, user.guild)
+def remove_money(user, guild, amount):
+    member_data = load_member_data(user, guild)
     member_data['bank'] -= int(amount)
-    save_member_data(member_data, user, user.guild)
+    save_member_data(member_data, user, guild)
     return member_data['bank']
 
 
 # removes money from user's wallet and returns the final amount
-def remove_wmoney(user, amount):
-    member_data = load_member_data(user, user.guild)
+def remove_wmoney(user, guild, amount):
+    member_data = load_member_data(user, guild)
     member_data['bank'] += int(amount)
-    save_member_data(member_data, user, user.guild)
+    save_member_data(member_data, user, guild)
     return member_data['bank']
 
 
 # sets the amount of money on user's bank account and returns the final amount
-def set_money(user, amount):
-    member_data = load_member_data(user, user.guild)
+def set_money(user, guild, amount):
+    member_data = load_member_data(user, guild)
     member_data['bank'] = int(amount)
-    save_member_data(member_data, user, user.guild)
+    save_member_data(member_data, user, guild)
     return member_data['bank']
 
 
 # sets the amount of money in user's wallet and returns the final amount
-def set_wmoney(user, amount):
-    member_data = load_member_data(user, user.guild)
+def set_wmoney(user, guild, amount):
+    member_data = load_member_data(user, guild)
     member_data['wallet'] = int(amount)
-    save_member_data(member_data, user, user.guild)
+    save_member_data(member_data, user, guild)
     return member_data['wallet']
 
 
 # transfers money from bank account to wallet and returns both final values
-def withdraw_money(user, amount):
-    member_data = load_member_data(user, user.guild)
+def withdraw_money(user, guild, amount):
+    member_data = load_member_data(user, guild)
     member_data['bank'] -= int(amount)
     member_data['wallet'] += int(amount)
-    save_member_data(member_data, user, user.guild)
+    save_member_data(member_data, user, guild)
     return member_data['bank'], member_data['wallet']
 
 
 # transfers money from wallet to bank account and takes the fee out returning final values
-def deposit_money(user, amount):
-    member_data = load_member_data(user, user.guild)
+def deposit_money(user, guild, amount):
+    member_data = load_member_data(user, guild)
     member_data['bank'] += int(0.9 * int(amount))
     member_data['wallet'] -= int(amount)
-    save_member_data(member_data, user, user.guild)
+    save_member_data(member_data, user, guild)
     return member_data['bank'], member_data['wallet']
 
 
 # transfers money from sender's bank account to receiver's one if lack of money on sender's account,
 # the money will be taken from sender's wallet
-def send_money(sender, receiver, amount):
-    sender_data = load_member_data(sender, sender.guild)
-    receiver_data = load_member_data(receiver, receiver.guild)
+def send_money(sender, receiver, guild, amount):
+    sender_data = load_member_data(sender, guild)
+    receiver_data = load_member_data(receiver, guild)
     if sender_data['bank'] >= int(amount):
         sender_data['bank'] -= int(amount)
         receiver_data['bank'] += int(amount)
@@ -441,18 +478,18 @@ def send_money(sender, receiver, amount):
         sender_data['wallet'] -= sender_data['bank'] + int(amount)
         sender_data['bank'] = 0
         receiver_data['bank'] += int(amount)
-    save_member_data(sender_data, sender, sender.guild)
-    save_member_data(receiver_data, receiver, receiver.guild)
+    save_member_data(sender_data, sender, guild)
+    save_member_data(receiver_data, receiver, guild)
     return sender_data['wallet'], sender_data['bank'], receiver_data['wallet'], receiver_data['bank']
 
 
-def rob_money(robber, victim, amount):
-    victim_data = load_member_data(victim, victim.guild)
-    robber_data = load_member_data(robber, robber.guild)
+def rob_money(robber, victim, guild, amount):
+    victim_data = load_member_data(victim, guild)
+    robber_data = load_member_data(robber, guild)
     victim_data['wallet'] -= int(amount)
     robber_data['wallet'] += int(amount)
-    save_member_data(victim_data, victim, victim.guild)
-    save_member_data(robber_data, robber, robber.guild)
+    save_member_data(victim_data, victim, guild)
+    save_member_data(robber_data, robber, guild)
     return victim_data['wallet'], robber_data['wallet']
 
 
@@ -462,6 +499,7 @@ def to_sec(time):
         return int(time[:-1]) * time_convert[time[-1]]
     except:
         return 'Error'
+
 
 # importing cogs
 for filename in os.listdir('./cogs'):

@@ -2,15 +2,16 @@ import json
 
 FILENAME = "data.json"
 
-DEFAULT_DATA = {"DEFAULT_SERVER_INFO":
-                    {"server-info":
+DEFAULT_DATA = {"DEFAULT_SERVER_INFO": {
+                        "server-info":
                          {"shop": dict(),
                           "members": 0,
                           "enter-role-id": 836891624398389298
                           }
-                     }, "DEFAULT_MEMBER_INFO":
-                    {'Inventory': dict(), 'wallet': 0, 'bank': 0, 'isPlayingRoulette': False, 'lastMessage': None,
-                     'isPlayingHL': False,
+                     }, "DEFAULT_MEMBER_INFO": {
+                     'Inventory': dict(), "Level": 0, "Messages_Quantity": 0,
+                     'wallet': 10000, 'bank': 10000, 'isPlayingRoulette': False,
+                     'lastMessage': None, 'isPlayingHL': False,
                      'TotalGamesPlayed': 0,
                      'DicesPlayed': 0, 'RoulettesPlayed': 0, 'SlotsPlayed': 0, 'HighLowsPlayed': 0,
                      'DailyRewardsCollected': 0, 'WorksCollected': 0,
@@ -20,9 +21,14 @@ DEFAULT_DATA = {"DEFAULT_SERVER_INFO":
                      'MoneyLostinSlots': 0, 'MoneyWoninHighLow': 0, 'MoneyLostinHighLow': 0, 'MoneyWoninRoulette': 0,
                      'MoneyLostinRoulette': 0,
                      'MoneyGotfromDailyRewards': 0, 'MoneyGotfromWorkPayments': 0
-                     }, "DEFAULT_SHOP_INFO":{
+                     }, "DEFAULT_SHOP_INFO": {
                         "banana": [100, 10],
-                        "pineapple": [200, 5]
+                        "pineapple": [200, 2],
+                        "kek": [30, 3],
+                        "lol": [60, 5],
+                        "why": [80, 1],
+                        "nope": [1000, 90],
+                        "apple": [50, 100]
                     }, "DEFAULT_INVENTORY": {
                         "banana": 1,
                         "apple": 2
@@ -171,7 +177,7 @@ def create_default_server_data(guild):
 
 def remove_guild_data(guild):
     full_data = load_full_data()
-    full_data[str(guild.id)] = dict()
+    del full_data[str(guild.id)]
     save_full_data(full_data)
 
 
