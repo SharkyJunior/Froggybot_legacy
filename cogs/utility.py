@@ -13,79 +13,56 @@ class Utils(commands.Cog):
 
     # commands
     @commands.command(aliases=['lb'])
-    async def leaderboard(self, message, category):
-        if category == "bank":
-            members = message.guild.members
-            banks = []
-            allmoney = 0
-            for member in members:
-                if not member.bot:
-                    member_data = load_member_data(member, message.guild)
-                    banks.append([member, member_data['bank']])
-                    allmoney += member_data['bank']
-            banks = sorted(banks, key=operator.itemgetter(1), reverse=True)
-            em = discord.Embed(title=f"{message.guild.name}'s bank leaderboard", colour=message.author.color)
-            if banks[0][1] > 0:
-                em.add_field(name=":bank: **Server total**", value=str(allmoney), inline=False)
-                em.add_field(name=f":first_place: {banks[0][0].display_name}", value=banks[0][1], inline=False)
-            else:
-                em.set_footer(text="Nobody here has never earned a penny.")
+    async def leaderboard(self, message):
+        members = message.guild.members
+        for i in members:
+            if i.bot:
+                members.remove(i)
 
-            if banks[1][1] > 0:
-                em.add_field(name=f":second_place: {banks[1][0].display_name}", value=banks[1][1], inline=False)
-            else:
-                em.set_footer(text="This is all people here who have earned more than nothing")
+        banks = []
+        all_money = 0
+        for member in members:
+            member_data = load_member_data(member, message.guild)
+            member_money = member_data['bank'] + member_data['wallet']
+            banks.append([member, member_money])
+            all_money += member_money
+        banks = sorted(banks, key=operator.itemgetter(1), reverse=True)
+        em = discord.Embed(title=f"{message.guild.name}'s money leaderboard", colour=message.author.color)
 
-            if banks[2][1] > 0:
-                em.add_field(name=f":third_place: {banks[2][0].display_name}", value=banks[2][1], inline=False)
-            else:
-                em.set_footer(text="This is all people here who have earned more than nothing")
+        places = 0
+        if len(members) > 5:
+            places = 5
+        else:
+            places = len(members)
 
-            for i in range(3, 5):
-                if banks[i][1] > 0:
-                    em.add_field(name=f"{banks[i][0].display_name}", value=banks[i][1], inline=False)
+        for i in range(places):
+            if i == 0:
+                if banks[0][1] > 0:
+                    em.add_field(name=":bank: **Server total**", value=str(all_money), inline=False)
+                    em.add_field(name=f":first_place: {banks[0][0].display_name}", value=banks[0][1], inline=False)
                 else:
-                    em.set_footer(text="This is all people here who have earned more than nothing")
+                    em.set_footer(text="Nobody here has never earned a penny.")
                     break
-
-            await message.channel.send(embed=em)
-        elif category == "wallet":
-            members = message.guild.members
-            banks = []
-            allmoney = 0
-            for member in members:
-                if not member.bot:
-                    member_data = load_member_data(member, message.guild)
-                    banks.append([member, member_data['wallet']])
-                    allmoney += member_data['wallet']
-            banks = sorted(banks, key=operator.itemgetter(1), reverse=True)
-            em = discord.Embed(title=f"{message.guild.name}'s wallet leaderboard", colour=message.author.color)
-            if banks[0][1] > 0:
-                em.add_field(name=":bank: **Server total**", value=str(allmoney), inline=False)
-                em.add_field(name=f":first_place: {banks[0][0].display_name}", value=banks[0][1], inline=False)
+            elif i == 1:
+                if banks[1][1] > 0:
+                    em.add_field(name=f":second_place: {banks[1][0].display_name}", value=banks[1][1], inline=False)
+                else:
+                    em.set_footer(text="This is all people here who have withdrawn more than nothing")
+                    break
+            elif i == 2:
+                if banks[2][1] > 0:
+                    em.add_field(name=f":third_place: {banks[2][0].display_name}", value=banks[2][1], inline=False)
+                else:
+                    em.set_footer(text="This is all people here who have withdrawn more than nothing")
+                    break
             else:
-                em.set_footer(text="Nobody here has never withdrawn a penny.")
-
-            if banks[1][1] > 0:
-                em.add_field(name=f":second_place: {banks[1][0].display_name}", value=banks[1][1], inline=False)
-            else:
-                em.set_footer(text="This is all people here who have withdrawn more than nothing")
-
-            if banks[2][1] > 0:
-                em.add_field(name=f":third_place: {banks[2][0].display_name}", value=banks[2][1], inline=False)
-            else:
-                em.set_footer(text="This is all people here who have withdrawn more than nothing")
-
-            for i in range(3, 5):
                 if banks[i][1] > 0:
                     em.add_field(name=f"{banks[i][0].display_name}", value=banks[i][1], inline=False)
                 else:
                     em.set_footer(text="This is all people here who have withdrawn more than nothing")
                     break
 
-            await message.channel.send(embed=em)
-        else:
-            await message.channel.send(":x: **I don't know this category, type `#help leaderboard` for categories.**")
+        await message.channel.send(embed=em)
 
     @commands.command(aliases=['am', 'addm'])
     @commands.has_permissions(administrator=True)
@@ -361,11 +338,76 @@ class Utils(commands.Cog):
             member = ctx.author
 
         member_inventory = load_inventory_data(member, ctx.guild)
+        server_data = load_server_data(ctx.guild)
+        items = []
+        max_items = server_data["max-items-on-page"]
+        for i in list(member_inventory.keys()):
+            if member_inventory[i] != 0:
+                items.append(i)
+        items_quantity = len(items)
+        pages = math.ceil(items_quantity / max_items)
 
-        await ctx.channel.send(f"{member.mention} inventory:")
+        arrows = "\u25b6", "\u25c0"
 
-        for i in member_inventory.keys():
-            await ctx.channel.send(f"{member_inventory[i]} {i}")
+        content = []
+
+        for i in range(pages):
+            if items_quantity - i * max_items > max_items or items_quantity - i * max_items == 0:
+                em = discord.Embed(title=f'{member.display_name}\'s inventory', description=f'Page {i + 1}/{pages}',
+                                   color=ctx.author.color)
+                em.set_footer(text=f"Requester: {ctx.author.display_name}")
+                for j in items[i * max_items:(i + 1) * max_items]:
+                    em.add_field(name=f'{j}', value=f'{member_inventory[j]}',
+                                 inline=False)
+
+                content.append(em)
+            elif items_quantity - i * max_items in [k for k in range(1, max_items)]:
+                em = discord.Embed(title=f'{member.display_name}\'s shop', description=f'Page {i + 1}/{pages}',
+                                   color=ctx.author.color)
+                em.set_footer(text=f"Requester: {ctx.author.display_name}")
+                for j in items[i * max_items:]:
+                    em.add_field(name=f'{j}', value=f'{member_inventory[j]}',
+                                 inline=False)
+
+                content.append(em)
+            else:
+                print("Inventory error acquired, HELP!")
+
+        cur_page = 1
+        message = await ctx.send(embed=content[0])
+        # getting the message object for editing and reacting
+
+        await message.add_reaction(arrows[1])
+        await message.add_reaction(arrows[0])
+
+        def check(reaction, user):
+            return user == ctx.author and str(reaction.emoji) in arrows
+            # This makes sure nobody except the command sender can interact with the "menu"
+
+        while True:
+            try:
+                reaction, user = await bot.wait_for("reaction_add", timeout=30, check=check)
+                # waiting for a reaction to be added - times out after x seconds, 60 in this
+                # example
+
+                if str(reaction.emoji) == arrows[0] and cur_page != pages:
+                    cur_page += 1
+                    await message.edit(embed=content[cur_page - 1])
+                    await message.remove_reaction(reaction, user)
+
+                elif str(reaction.emoji) == arrows[1] and cur_page > 1:
+                    cur_page -= 1
+                    await message.edit(embed=content[cur_page - 1])
+                    await message.remove_reaction(reaction, user)
+
+                else:
+                    await message.remove_reaction(reaction, user)
+                    # removes reactions if the user tries to go forward on the last page or
+                    # backwards on the first page
+            except asyncio.TimeoutError:
+                await message.delete()
+                break
+                # ending the loop if user doesn't react after x seconds
 
     @commands.command()
     async def level(self, ctx, member: discord.Member = None):

@@ -1,3 +1,5 @@
+import discord
+
 from main import *
 
 
@@ -58,33 +60,41 @@ class Shop(commands.Cog):
     @commands.command()
     async def shop(self, ctx):
         shop_data = load_shop_data(ctx.guild)
+        server_data = load_server_data(ctx.guild)
+        max_lots = server_data["max-lots-on-page"]
         lots = []
         for i in list(shop_data.keys()):
             if shop_data[i][1] != 0:
                 lots.append(i)
         lots_quantity = len(lots)
-        pages = math.ceil(lots_quantity/4)
+        pages = math.ceil(lots_quantity / max_lots)
 
         arrows = "\u25b6", "\u25c0"
 
         content = []
 
         for i in range(pages):
-            if lots_quantity - i*4 > 4 or lots_quantity - i*4 == 0:
-                page_content = ""
-                for j in lots[i*4:(i+1)*4]:
-                    page_content += f"{j} - quantity: {shop_data[j][1]}, price: {shop_data[j][0]}:coin:\n"
-                content.append(page_content)
-            elif lots_quantity - i*4 in [1, 2, 3]:
-                page_content = ""
-                for j in lots[i*4:]:
-                    page_content += f"{j} - quantity: {shop_data[j][1]}, price: {shop_data[j][0]}:coin:\n"
-                content.append(page_content)
+            if lots_quantity - i*max_lots > max_lots or lots_quantity - i*max_lots == 0:
+                em = discord.Embed(title=f'{ctx.guild.name}\'s shop', description=f'Page {i+1}/{pages}',
+                                   color=ctx.author.color)
+                em.set_footer(text=f"Requester: {ctx.author.display_name}")
+                for j in lots[i*max_lots:(i+1)*max_lots]:
+                    em.add_field(name=f'{j} ({shop_data[j][1]} in stock)', value=f'{shop_data[j][0]}:coin:', inline=False)
+
+                content.append(em)
+            elif lots_quantity - i*max_lots in [k for k in range(1, max_lots)]:
+                em = discord.Embed(title=f'{ctx.guild.name}\'s shop', description=f'Page {i+1}/{pages}',
+                                   color=ctx.author.color)
+                em.set_footer(text=f"Requester: {ctx.author.display_name}")
+                for j in lots[i*max_lots:]:
+                    em.add_field(name=f'{j} ({shop_data[j][1]} in stock)', value=f'{shop_data[j][0]}:coin:', inline=False)
+
+                content.append(em)
             else:
-                print("Error acquired, HELP!")
+                print("Shop error acquired, HELP!")
 
         cur_page = 1
-        message = await ctx.send(f"Page {cur_page}/{pages}:\n{content[cur_page-1]}")
+        message = await ctx.send(embed=content[0])
         # getting the message object for editing and reacting
 
         await message.add_reaction(arrows[1])
@@ -96,18 +106,18 @@ class Shop(commands.Cog):
 
         while True:
             try:
-                reaction, user = await bot.wait_for("reaction_add", timeout=60, check=check)
+                reaction, user = await bot.wait_for("reaction_add", timeout=30, check=check)
                 # waiting for a reaction to be added - times out after x seconds, 60 in this
                 # example
 
                 if str(reaction.emoji) == arrows[0] and cur_page != pages:
                     cur_page += 1
-                    await message.edit(content=f"Page {cur_page}/{pages}:\n{content[cur_page-1]}")
+                    await message.edit(embed=content[cur_page-1])
                     await message.remove_reaction(reaction, user)
 
                 elif str(reaction.emoji) == arrows[1] and cur_page > 1:
                     cur_page -= 1
-                    await message.edit(content=f"Page {cur_page}/{pages}:\n{content[cur_page-1]}")
+                    await message.edit(embed=content[cur_page-1])
                     await message.remove_reaction(reaction, user)
 
                 else:

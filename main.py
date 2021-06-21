@@ -4,6 +4,7 @@ import math
 import datetime
 import asyncio
 import time
+import operator
 
 from discord.utils import get
 import discord
@@ -95,22 +96,44 @@ async def on_guild_remove(guild):
 
 @bot.event
 async def on_member_join(member):
-    member_data = load_member_data(member, member.guild)
     server_info = load_server_data(member.guild)
 
-    role = get(member.guild.roles, id=server_info["enter-role-id"])
-    await member.add_roles(role)
+    if server_info["on-member-join-message"] != "no" and server_info["on-member-join-channel"] != "no":
+        channel = bot.get_channel(int(server_info["on-member-join-channel"]))
+        message = server_info["on-member-join-message"].replace("|", member.guild.name)
+        message = message.replace("~", member.mention)
 
-    p = await member.create_dm()
-    await p.send(f"Nice to meet you on {member.guild.name} server!")
+        await channel.send(message)
 
-    save_member_data(member_data, member, member.guild)
+    if server_info["on-member-join-dm"] != "no":
+        p = await member.create_dm()
+        if "|" in server_info["on-member-join-dm"]:
+            await p.send(server_info["on-member-join-dm"].replace("|", member.guild.name))
+        else:
+            await p.send(server_info["on-member-join-dm"])
+
+    if server_info["enter-role-id"] != "no":
+        role = get(member.guild.roles, id=server_info["enter-role-id"])
+        await member.add_roles(role)
 
 
 @bot.event
 async def on_member_left(member):
-    p = await member.create_dm()
-    await p.send(f"Bye, bye!")
+    server_info = load_server_data(member.guild)
+
+    if server_info["on-member-left-message"] != "no" and server_info["on-member-left-channel"] != "no":
+        channel = bot.get_channel(int(server_info["on-member-left-channel"]))
+        if "|" in server_info["on-member-left-message"]:
+            await channel.send(server_info["on-member-left-message"].replace("|", member.guild.name))
+        else:
+            await channel.send(server_info["on-member-left-message"])
+
+    if server_info["on-member-left-dm"] != "no":
+        p = await member.create_dm()
+        if "|" in server_info["on-member-left-dm"]:
+            await p.send(server_info["on-member-left-dm"].replace("|", member.guild.name))
+        else:
+            await p.send(server_info["on-member-left-dm"])
 
 
 @bot.command()
@@ -165,7 +188,7 @@ async def server_info(ctx):
 
 
 @bot.command(aliases=['user-info'])
-async def user_info(ctx, mode="full", member: discord.Member = None):
+async def user_info(ctx, member: discord.Member = None, *, mode='full'):
     if member is None:
         md = load_member_data(ctx.author, ctx.guild)
         info_owner = ctx.author.display_name
@@ -310,7 +333,7 @@ async def work(ctx):
 
 
 # error messages
-@bot.event
+# @bot.event
 async def on_command_error(ctx, exc):
     if isinstance(exc, CommandOnCooldown):
         print('CommandOnCooldown error')
@@ -427,9 +450,9 @@ def remove_money(user, guild, amount):
 # removes money from user's wallet and returns the final amount
 def remove_wmoney(user, guild, amount):
     member_data = load_member_data(user, guild)
-    member_data['bank'] += int(amount)
+    member_data['wallet'] -= int(amount)
     save_member_data(member_data, user, guild)
-    return member_data['bank']
+    return member_data['wallet']
 
 
 # sets the amount of money on user's bank account and returns the final amount

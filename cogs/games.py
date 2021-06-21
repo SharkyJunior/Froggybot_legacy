@@ -91,65 +91,69 @@ class Games(commands.Cog):
     @commands.command(aliases=["sl"])
     async def slots(self, message, amt=None):
         member_data = load_member_data(message.author, message.guild)
-        wallet_money = member_data['wallet']
         if amt is None or int(amt) <= 0:
             await message.channel.send(":x: **Enter a valid number!**")
             return
-        if wallet_money >= int(amt) > 0:
+        if member_data['wallet'] >= int(amt) > 0:
             member_data["TotalGamesPlayed"] += 1
             member_data["SlotsPlayed"] += 1
             result = [random.choice(SLOTS_OPTIONS) for i in range(3)]
             # result = [":gem:", ":gem:", ":gem:"]
             # result = [":cherries:", ":cherries:", ":cherries:"]
             if all([i == result[0] for i in result[1::]]) and result[0] == ":gem:":
-                wallet_money = add_wmoney(message.author, message.guild, 100 * int(amt))
+                add_wmoney(message.author, message.guild, 100 * int(amt))
+                member_data['wallet'] = load_member_data(message.author, message.guild)['wallet']
                 member_data['MoneyWon'] += 100 * int(amt)
                 member_data['MoneyWoninSlots'] += 100 * int(amt)
                 em = discord.Embed(title=":slot_machine: **MEGA WIN**",
                                    description=f"{result[0]} {result[1]} {result[2]} **100x**",
                                    colour=discord.Color.from_rgb(60, 179, 113))
                 em.add_field(name="Wallet",
-                             value=f":inbox_tray: {wallet_money}:coin: --> {wallet_money + 100 * int(amt)}:coin:")
+                             value=f":inbox_tray: {member_data['wallet'] - 100 * int(amt)}:coin: --> {member_data['wallet']}:coin:")
             elif all([i == result[0] for i in result[1::]]) and result[0] == ":cherries:":
-                wallet_money = add_wmoney(message.author, message.guild, 50 * int(amt))
+                add_wmoney(message.author, message.guild, 50 * int(amt))
+                member_data['wallet'] = load_member_data(message.author, message.guild)['wallet']
                 member_data['MoneyWon'] += 50 * int(amt)
                 member_data['MoneyWoninSlots'] += 50 * int(amt)
                 em = discord.Embed(title=":slot_machine: **HUGE WIN**",
                                    description=f"{result[0]} {result[1]} {result[2]} **50x**",
                                    colour=discord.Color.from_rgb(60, 179, 113))
                 em.add_field(name="Wallet",
-                             value=f":inbox_tray: {wallet_money}:coin: --> {wallet_money + 50 * int(amt)}:coin:")
+                             value=f":inbox_tray: {member_data['wallet'] - 50 * int(amt)}:coin: --> {member_data['wallet']}:coin:")
             elif all([i == result[0] for i in result[1::]]):
-                wallet_money = add_wmoney(message.author, message.guild, 20 * int(amt))
+                add_wmoney(message.author, message.guild, 20 * int(amt))
+                member_data['wallet'] = load_member_data(message.author, message.guild)['wallet']
                 member_data['MoneyWon'] += 20 * int(amt)
                 member_data['MoneyWoninSlots'] += 20 * int(amt)
                 em = discord.Embed(title=":slot_machine: **BINGO**",
                                    description=f"{result[0]} {result[1]} {result[2]} **20x**",
                                    colour=discord.Color.from_rgb(60, 179, 113))
                 em.add_field(name="Wallet",
-                             value=f":inbox_tray: {wallet_money}:coin: --> {wallet_money + 20 * int(amt)}:coin:")
+                             value=f":inbox_tray: {member_data['wallet'] - 20 * int(amt)}:coin: --> {member_data['wallet']}:coin:")
             elif result[0] == result[1] or result[0] == result[2] or result[1] == result[2]:
-                wallet_money = add_wmoney(message.author, message.guild, 5 * int(amt))
+                add_wmoney(message.author, message.guild, 5 * int(amt))
+                member_data['wallet'] = load_member_data(message.author, message.guild)['wallet']
                 member_data['MoneyWon'] += 5 * int(amt)
                 member_data['MoneyWoninSlots'] += 5 * int(amt)
                 em = discord.Embed(title=":slot_machine: **WIN**",
                                    description=f"{result[0]} {result[1]} {result[2]} **5x**",
                                    colour=discord.Color.from_rgb(60, 179, 113))
                 em.add_field(name="Wallet",
-                             value=f":inbox_tray: {wallet_money}:coin: --> {wallet_money + 5 * int(amt)}:coin:")
+                             value=f":inbox_tray: {member_data['wallet'] - 5 * int(amt)}:coin: --> {member_data['wallet']}:coin:")
             else:
-                wallet_money = remove_wmoney(message.author, message.guild, int(amt))
+                remove_wmoney(message.author, message.guild, int(amt))
+                member_data['wallet'] = load_member_data(message.author, message.guild)['wallet']
                 member_data['MoneyLost'] += int(amt)
                 member_data['MoneyLostinSlots'] += int(amt)
                 em = discord.Embed(title=":slot_machine: **LOSS**", description=f"{result[0]} {result[1]} {result[2]}",
                                    colour=discord.Color.from_rgb(220, 20, 60))
                 em.add_field(name="Wallet",
-                             value=f":inbox_tray: {wallet_money}:coin: --> {wallet_money - int(amt)}:coin:")
+                             value=f":outbox_tray: {member_data['wallet'] + int(amt)}:coin: --> {member_data['wallet']}:coin:")
 
-            member_data['wallet'] = wallet_money
+            member_data['wallet'] = load_member_data(message.author, message.guild)['wallet']
             save_member_data(member_data, message.author, message.guild)
             await message.channel.send(embed=em)
-        elif wallet_money < int(amt):
+        elif member_data['wallet'] < int(amt):
             await message.channel.send(":x: **You don't have enough money in your wallet!**")
 
     @commands.command(aliases=['hl'])

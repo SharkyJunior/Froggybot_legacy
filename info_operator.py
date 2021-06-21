@@ -6,7 +6,21 @@ DEFAULT_DATA = {"DEFAULT_SERVER_INFO": {
                         "server-info":
                          {"shop": dict(),
                           "members": 0,
-                          "enter-role-id": 836891624398389298
+                          "enter-role-id": "no",
+                          "work-cool-down": 3600,
+                          "on-member-join-message": "no",
+                          "on-member-join-dm": "no",
+                          "on-member-join-channel": "no",
+                          "on-member-left-message": "no",
+                          "on-member-left-channel": "no",
+                          "on-member-left-dm": "no",
+                          "moderation-report-channel": "no",
+                          "profaned-words": [],
+                          "moderator-roles": [],
+                          "xp-modifier": 1,
+                          "shop-delete-timeout": 30,
+                          "max-lots-on-page": 4,
+                          "max-items-on-page": 4
                           }
                      }, "DEFAULT_MEMBER_INFO": {
                      'Inventory': dict(), "Level": 0, "Messages_Quantity": 0,
@@ -170,7 +184,7 @@ def create_default_data():
 def create_default_server_data(guild):
     guild_data = load_guild_data(guild)
 
-    guild_data["server-info"] = DEFAULT_DATA["DEFAULT_SERVER_INFO"]
+    guild_data["server-info"] = DEFAULT_DATA["DEFAULT_SERVER_INFO"]["server-info"]
 
     save_guild_data(guild_data, guild)
 

@@ -15,7 +15,7 @@ class Moderation(commands.Cog):
     @commands.has_permissions(kick_members=True)
     async def kick(self, message, member: discord.Member = None, *, reason='No reason given'):
         if member != None:
-            channel = self.bot.get_channel(836955773513760769) #getting admin channel
+            channel = self.bot.get_channel(836955773513760769)  # getting admin channel
 
             em = discord.Embed(title=":leg: **Kicked {}#{}!**".format(member.name, member.discriminator),
                                colour=discord.Color.from_rgb(220, 20, 60), timestamp=datetime.datetime.utcnow())
