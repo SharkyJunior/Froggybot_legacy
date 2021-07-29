@@ -5,6 +5,10 @@ import datetime
 import asyncio
 import time
 import operator
+import youtube_dl
+import ffmpeg
+import nacl
+from discord import FFmpegPCMAudio
 
 from discord.utils import get
 import discord
@@ -43,6 +47,10 @@ async def message_tracker(message):
 
 
 @bot.command()
+async def ping(msg):
+    await msg.channel.send(f'My latency is **{int(bot.latency * 1000)}** ms')
+
+@bot.command()
 @commands.has_permissions(administrator=True)
 async def load(message, extension):
     bot.load_extension(f'cogs.{extension}')
@@ -66,8 +74,8 @@ async def reload(message, extension):
 
 async def change_status():
     await bot.wait_until_ready()
-    statuses = ['#help', f'on {len(bot.guilds)} servers', 'slots', 'with coins', 'dice', 'on v0.2', 'the ban hammer',
-                "with cogs"]
+    statuses = ['#help', f'on {len(bot.guilds)} servers', 'slots', 'with coins', 'dice', 'on v0.2', 'with the ban hammer',
+                "with cogs", "roulette", "music", "highlow"]
 
     while not bot.is_closed():
         status = random.choice(statuses)

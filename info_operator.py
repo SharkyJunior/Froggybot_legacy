@@ -20,7 +20,9 @@ DEFAULT_DATA = {"DEFAULT_SERVER_INFO": {
                           "xp-modifier": 1,
                           "shop-delete-timeout": 30,
                           "max-lots-on-page": 4,
-                          "max-items-on-page": 4
+                          "max-items-on-page": 4,
+                          "is_connected": False,
+                          "is_playing": False
                           }
                      }, "DEFAULT_MEMBER_INFO": {
                      'Inventory': dict(), "Level": 0, "Messages_Quantity": 0,

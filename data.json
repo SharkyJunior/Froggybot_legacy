@@ -1,13 +1,42 @@
 {
     "839566467375956041": {
         "server-info": {
-            "shop": {},
-            "members": 0,
-            "enter-role-id": 854689040392781855,
+            "shop": {
+                "banana": [
+                    100,
+                    10
+                ],
+                "pineapple": [
+                    200,
+                    2
+                ],
+                "kek": [
+                    30,
+                    3
+                ],
+                "lol": [
+                    60,
+                    5
+                ],
+                "why": [
+                    80,
+                    1
+                ],
+                "nope": [
+                    1000,
+                    90
+                ],
+                "apple": [
+                    50,
+                    100
+                ]
+            },
+            "members": 4,
+            "enter-role-id": "no",
             "work-cool-down": 3600,
             "on-member-join-message": "no",
-            "on-member-join-dm": "hi",
-            "on-member-join-channel": 854694972804694027,
+            "on-member-join-dm": "no",
+            "on-member-join-channel": "no",
             "on-member-left-message": "no",
             "on-member-left-channel": "no",
             "on-member-left-dm": "no",
@@ -17,80 +46,19 @@
             "xp-modifier": 1,
             "shop-delete-timeout": 30,
             "max-lots-on-page": 4,
-            "max-items-on-page": 4
-        },
-        "620686171626012689": {
-            "Inventory": {
-                "banana": 1,
-                "apple": 2,
-                "lol": 5
-            },
-            "Level": 4,
-            "Messages_Quantity": 46,
-            "wallet": 10000,
-            "bank": 9700,
-            "isPlayingRoulette": false,
-            "lastMessage": null,
-            "isPlayingHL": false,
-            "TotalGamesPlayed": 0,
-            "DicesPlayed": 0,
-            "RoulettesPlayed": 0,
-            "SlotsPlayed": 0,
-            "HighLowsPlayed": 0,
-            "DailyRewardsCollected": 0,
-            "WorksCollected": 0,
-            "RobAttempts": 0,
-            "SuccessfulRobberies": 0,
-            "TimesRobbed": 0,
-            "TimesSuccessfullyRobbed": 0,
-            "TotalRobberyProfit": 0,
-            "MoneyWon": 0,
-            "MoneyLost": 0,
-            "MoneyWoninDice": 0,
-            "MoneyLostinDice": 0,
-            "MoneyWoninSlots": 0,
-            "MoneyLostinSlots": 0,
-            "MoneyWoninHighLow": 0,
-            "MoneyLostinHighLow": 0,
-            "MoneyWoninRoulette": 0,
-            "MoneyLostinRoulette": 0,
-            "MoneyGotfromDailyRewards": 0,
-            "MoneyGotfromWorkPayments": 0
+            "max-items-on-page": 4,
+            "is_connected": true,
+            "is_playing": false
         },
         "447662018183430164": {
             "Inventory": {
-                "banana1": 1,
-                "apple2": 2,
-                "banana3": 1,
-                "apple4": 2,
-                "banana5": 1,
-                "apple6": 2,
-                "banana7": 1,
-                "apple8": 2,
-                "banana9": 1,
-                "apple0": 2,
-                "banana11": 1,
-                "apple12": 2,
-                "banana13": 1,
-                "apple14": 2,
-                "banana15": 1,
-                "apple16": 2,
-                "banana17": 1,
-                "apple18": 2,
-                "banana19": 1,
-                "apple21": 2,
-                "banana22": 1,
-                "apple23": 2,
-                "banana24": 1,
-                "apple25": 2,
-                "banana26": 1,
-                "apple27": 2,
-                "kek18": 3
+                "banana": 1,
+                "apple": 2
             },
-            "Level": 4,
-            "Messages_Quantity": 36,
+            "Level": 2,
+            "Messages_Quantity": 14,
             "wallet": 10000,
-            "bank": 9910,
+            "bank": 10000,
             "isPlayingRoulette": false,
             "lastMessage": null,
             "isPlayingHL": false,
@@ -126,6 +94,43 @@
             },
             "Level": 0,
             "Messages_Quantity": 0,
+            "wallet": 10000,
+            "bank": 10000,
+            "isPlayingRoulette": false,
+            "lastMessage": null,
+            "isPlayingHL": false,
+            "TotalGamesPlayed": 0,
+            "DicesPlayed": 0,
+            "RoulettesPlayed": 0,
+            "SlotsPlayed": 0,
+            "HighLowsPlayed": 0,
+            "DailyRewardsCollected": 0,
+            "WorksCollected": 0,
+            "RobAttempts": 0,
+            "SuccessfulRobberies": 0,
+            "TimesRobbed": 0,
+            "TimesSuccessfullyRobbed": 0,
+            "TotalRobberyProfit": 0,
+            "MoneyWon": 0,
+            "MoneyLost": 0,
+            "MoneyWoninDice": 0,
+            "MoneyLostinDice": 0,
+            "MoneyWoninSlots": 0,
+            "MoneyLostinSlots": 0,
+            "MoneyWoninHighLow": 0,
+            "MoneyLostinHighLow": 0,
+            "MoneyWoninRoulette": 0,
+            "MoneyLostinRoulette": 0,
+            "MoneyGotfromDailyRewards": 0,
+            "MoneyGotfromWorkPayments": 0
+        },
+        "620686171626012689": {
+            "Inventory": {
+                "banana": 1,
+                "apple": 2
+            },
+            "Level": 1,
+            "Messages_Quantity": 2,
             "wallet": 10000,
             "bank": 10000,
             "isPlayingRoulette": false,
