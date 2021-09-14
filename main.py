@@ -5,19 +5,16 @@ import datetime
 import asyncio
 import time
 import operator
-import youtube_dl
-import ffmpeg
-import nacl
-from discord import FFmpegPCMAudio
+from discord_slash import SlashCommand, SlashContext
 
-from discord.utils import get
-import discord
+from discord.utils import *
+from discord import *
 from discord.ext import commands
 from discord.ext.commands import cooldown, CommandOnCooldown, MissingRequiredArgument, MissingRole, MissingPermissions
 
 from info_operator import *
 
-TOKEN = 'ODM3MzIwODIxMDAwODk2NTYy.YIq1yA.tyHW7JqeFuCk449E-a5n0Gs-j68'
+TOKEN = 'ODM3MzIwODIxMDAwODk2NTYy.YIq1yA.w4nZlr7tfs0jyUGrvauASD8VqrI'
 PREFIX = '#'
 ROULETTE_MULTIPLIER = 1.2
 GUILD_ID = 836887040364511283
@@ -27,11 +24,13 @@ WORK_LIMIT = 100
 ENTER_ROLE_ID = 836891624398389298
 MESSAGES_PER_LEVEL_MODIFIER = 1.4
 
-intents = discord.Intents.all()
+intents = Intents.all()
 intents.members = True
-activity = discord.Game(name='#help')
+activity = Game(name='#help')
 bot = commands.Bot(command_prefix=PREFIX, activity=activity, intents=intents)
+slash = SlashCommand(bot, sync_commands=True)
 bot.remove_command('help')
+guilds_ids = [839566467375956041]
 
 
 @bot.listen('on_message')
@@ -80,7 +79,7 @@ async def change_status():
     while not bot.is_closed():
         status = random.choice(statuses)
 
-        await bot.change_presence(activity=discord.Game(name=status))
+        await bot.change_presence(activity=Game(name=status))
 
         await asyncio.sleep(15)
 
@@ -144,13 +143,14 @@ async def on_member_left(member):
             await p.send(server_info["on-member-left-dm"])
 
 
-@bot.command()
-async def test(ctx):
-    pass
+@slash.slash(name="ping",description="Pings the bot", guild_ids=guilds_ids)
+async def ping(ctx: SlashContext):
+    embed = Embed(title="Embed Test")
+    await ctx.send(embed=embed)
 
 
 @bot.command()
-async def cdmd(ctx, member: discord.User = None):
+async def cdmd(ctx, member: User = None):
     if member is None:
         member = ctx.author
     create_default_member_data(member, ctx.guild)
@@ -182,7 +182,7 @@ async def cdshd(ctx):
 
 
 @bot.command()
-async def cdid(ctx, member: discord.User = None):
+async def cdid(ctx, member: User = None):
     if member is None:
         member = ctx.author
     create_default_inventory_data(member, ctx.guild)
@@ -194,21 +194,24 @@ async def server_info(ctx):
     await ctx.channel.send(":x: Nothing made here yet! :no_good:")
     server_info = ctx.guild
 
+@slash.slash(name='user_info', description='Shows person\'s statistics', guild_ids=guilds_ids)
+async def user_info(ctx: SlashContext, member: Member = None, mode='full'):
+    print(member)
+    print(ctx.author)
 
-@bot.command(aliases=['user-info'])
-async def user_info(ctx, member: discord.Member = None, *, mode='full'):
-    if member is None:
-        md = load_member_data(ctx.author, ctx.guild)
-        info_owner = ctx.author.display_name
-        user_age = time.time() - ctx.message.author.created_at.timestamp()
-        creationDate = ctx.message.author.created_at
-    else:
-        md = load_member_data(member, ctx.guild)
-        info_owner = member.display_name
-        user_age = time.time() - member.created_at.timestamp()
-        creationDate = member.created_at
+    return
+    #if member is None:
+    #    md = load_member_data(ctx.author, ctx.guild)
+    #    info_owner = ctx.author.display_name
+    #    user_age = time.time() - ctx.message.author.created_at.timestamp()
+    #    creationDate = ctx.message.author.created_at
+    #else:
+    #    md = load_member_data(member, ctx.guild)
+    #    info_owner = member.display_name
+    #    user_age = time.time() - member.created_at.timestamp()
+    #    creationDate = member.created_at
 
-    em = discord.Embed(title=f':ledger: {info_owner}', colour=discord.Color.from_rgb(255, 211, 0))
+    em = Embed(title=f':ledger: {info_owner}', colour=Color.from_rgb(255, 211, 0))
     if mode == "full":
         em.add_field(name='Money stats',       value=f"Money total won = {md['MoneyWon']}:coin:\n\
                                                        Money total lost = {md['MoneyLost']}:coin:\n\
@@ -291,8 +294,8 @@ async def daily(ctx):
         member_data['MoneyGotfromDailyRewards'] += amt
         bal1 = bal + int(member_data['bank'] * DAILY_MULTIPLIER)
 
-        em = discord.Embed(title=f":white_check_mark: {ctx.message.author.display_name}'s daily reward",
-                           colour=discord.Color.from_rgb(60, 179, 113))
+        em = Embed(title=f":white_check_mark: {ctx.message.author.display_name}'s daily reward",
+                           colour=Color.from_rgb(60, 179, 113))
         em.add_field(name="Bank", value=":inbox_tray: **{}:coin: --> {}:coin:**".format(bal, bal1))
         await ctx.message.channel.send(embed=em)
     else:
@@ -300,8 +303,8 @@ async def daily(ctx):
         member_data['MoneyGotfromDailyRewards'] += DAILY_LIMIT
         bal1 = bal + DAILY_LIMIT
 
-        em = discord.Embed(title=f":white_check_mark: {ctx.message.author.display_name}'s daily reward",
-                           colour=discord.Color.from_rgb(60, 179, 113))
+        em = Embed(title=f":white_check_mark: {ctx.message.author.display_name}'s daily reward",
+                           colour=Color.from_rgb(60, 179, 113))
         em.add_field(name="Bank", value=":inbox_tray: **{}:coin: --> {}:coin:**".format(bal, bal1))
         await ctx.message.channel.send(embed=em)
     member_data['bank'] = bank_money
@@ -321,9 +324,9 @@ async def work(ctx):
         bank_money = add_money(ctx.message.author, ctx.guild, int(member_data['bank'] * work_multiplier))
         member_data['MoneyGotfromWorkPayments'] += int(member_data['bank'] * work_multiplier)
         bal1 = bal + int(member_data['bank'] * work_multiplier)
-        em = discord.Embed(
+        em = Embed(
             title=f":white_check_mark: {ctx.message.author.display_name}'s work payment, come back in 1 hour to collect next one",
-            colour=discord.Color.from_rgb(60, 179, 113))
+            colour=Color.from_rgb(60, 179, 113))
         em.add_field(name="Bank", value=":inbox_tray: **{}:coin: --> {}:coin:**".format(bal, bal1))
         await ctx.message.channel.send(embed=em)
     else:
@@ -331,9 +334,9 @@ async def work(ctx):
         member_data['MoneyGotfromWorkPayments'] += WORK_LIMIT
         bal1 = bal + WORK_LIMIT
 
-        em = discord.Embed(
+        em = Embed(
             title=f":white_check_mark: {ctx.message.author.display_name}'s work payment, come back in 1 hour to collect next one",
-            colour=discord.Color.from_rgb(60, 179, 113))
+            colour=Color.from_rgb(60, 179, 113))
         em.add_field(name="Bank", value=":inbox_tray: **{}:coin: --> {}:coin:**".format(bal, bal1))
         await ctx.message.channel.send(embed=em)
     member_data['bank'] = bank_money
@@ -533,9 +536,9 @@ def to_sec(time):
 
 
 # importing cogs
-for filename in os.listdir('./cogs'):
-    if filename.endswith('.py'):
-        bot.load_extension(f'cogs.{filename[:-3]}')
+#for filename in os.listdir('./cogs'):
+#    if filename.endswith('.py'):
+#        bot.load_extension(f'cogs.{filename[:-3]}')
 
 
 bot.loop.create_task(change_status())  # enabling changing status

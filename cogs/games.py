@@ -30,10 +30,10 @@ class Games(commands.Cog):
             opponent_sum = sum(opponent_values)
             em = None
             if author_sum > opponent_sum and author_values[0] != author_values[1]:
-                em = discord.Embed(title="**Dice** :game_die:",
+                em = Embed(title="**Dice** :game_die:",
                                    description=":inbox_tray: Wallet: {}:coin: --> {}:coin:".format(wallet_money,
                                                                                                    wallet_money + amt),
-                                   colour=discord.Color.from_rgb(60, 179, 113))
+                                   colour=Color.from_rgb(60, 179, 113))
                 em.add_field(name="Your score",
                              value="{}:game_die: and {}:game_die:".format(author_values[0], author_values[1]))
                 em.add_field(name="Opponent score",
@@ -42,10 +42,10 @@ class Games(commands.Cog):
                 member_data['MoneyWoninDice'] += amt
                 wallet_money = add_wmoney(message.author, message.guild, amt)
             elif author_sum > opponent_sum and author_values[0] == author_values[1]:
-                em = discord.Embed(title="**Dice** :game_die:",
+                em = Embed(title="**Dice** :game_die:",
                                    description=":inbox_tray: Wallet: {}:coin: --> {}:coin: **(Double!)** ".format(
                                        wallet_money, wallet_money + 2 * amt),
-                                   colour=discord.Color.from_rgb(60, 179, 113))
+                                   colour=Color.from_rgb(60, 179, 113))
                 em.add_field(name="Your score",
                              value="{}:game_die: and {}:game_die:".format(author_values[0], author_values[1]))
                 em.add_field(name="Opponent score",
@@ -54,17 +54,17 @@ class Games(commands.Cog):
                 member_data['MoneyWoninDice'] += 2 * amt
                 wallet_money = add_wmoney(message.author, message.guild, 2 * amt)
             elif author_sum == opponent_sum:
-                em = discord.Embed(title="**Dice** :game_die:", description="It's a draw get your money back",
-                                   colour=discord.Color.from_rgb(255, 140, 0))
+                em = Embed(title="**Dice** :game_die:", description="It's a draw get your money back",
+                                   colour=Color.from_rgb(255, 140, 0))
                 em.add_field(name="Your score",
                              value="{}:game_die: and {}:game_die:".format(author_values[0], author_values[1]))
                 em.add_field(name="Opponent score",
                              value="{}:game_die: and {}:game_die:".format(opponent_values[0], opponent_values[1]))
             elif author_sum < opponent_sum:
-                em = discord.Embed(title="**Dice** :game_die:",
+                em = Embed(title="**Dice** :game_die:",
                                    description=":outbox_tray: Wallet: {}:coin: --> {}:coin:".format(wallet_money,
                                                                                                     wallet_money - amt),
-                                   colour=discord.Color.from_rgb(220, 20, 60))
+                                   colour=Color.from_rgb(220, 20, 60))
                 em.add_field(name="Your score",
                              value="{}:game_die: and {}:game_die:".format(author_values[0], author_values[1]))
                 em.add_field(name="Opponent score",
@@ -105,9 +105,9 @@ class Games(commands.Cog):
                 member_data['wallet'] = load_member_data(message.author, message.guild)['wallet']
                 member_data['MoneyWon'] += 100 * int(amt)
                 member_data['MoneyWoninSlots'] += 100 * int(amt)
-                em = discord.Embed(title=":slot_machine: **MEGA WIN**",
+                em = Embed(title=":slot_machine: **MEGA WIN**",
                                    description=f"{result[0]} {result[1]} {result[2]} **100x**",
-                                   colour=discord.Color.from_rgb(60, 179, 113))
+                                   colour=Color.from_rgb(60, 179, 113))
                 em.add_field(name="Wallet",
                              value=f":inbox_tray: {member_data['wallet'] - 100 * int(amt)}:coin: --> {member_data['wallet']}:coin:")
             elif all([i == result[0] for i in result[1::]]) and result[0] == ":cherries:":
@@ -115,9 +115,9 @@ class Games(commands.Cog):
                 member_data['wallet'] = load_member_data(message.author, message.guild)['wallet']
                 member_data['MoneyWon'] += 50 * int(amt)
                 member_data['MoneyWoninSlots'] += 50 * int(amt)
-                em = discord.Embed(title=":slot_machine: **HUGE WIN**",
+                em = Embed(title=":slot_machine: **HUGE WIN**",
                                    description=f"{result[0]} {result[1]} {result[2]} **50x**",
-                                   colour=discord.Color.from_rgb(60, 179, 113))
+                                   colour=Color.from_rgb(60, 179, 113))
                 em.add_field(name="Wallet",
                              value=f":inbox_tray: {member_data['wallet'] - 50 * int(amt)}:coin: --> {member_data['wallet']}:coin:")
             elif all([i == result[0] for i in result[1::]]):
@@ -125,9 +125,9 @@ class Games(commands.Cog):
                 member_data['wallet'] = load_member_data(message.author, message.guild)['wallet']
                 member_data['MoneyWon'] += 20 * int(amt)
                 member_data['MoneyWoninSlots'] += 20 * int(amt)
-                em = discord.Embed(title=":slot_machine: **BINGO**",
+                em = Embed(title=":slot_machine: **BINGO**",
                                    description=f"{result[0]} {result[1]} {result[2]} **20x**",
-                                   colour=discord.Color.from_rgb(60, 179, 113))
+                                   colour=Color.from_rgb(60, 179, 113))
                 em.add_field(name="Wallet",
                              value=f":inbox_tray: {member_data['wallet'] - 20 * int(amt)}:coin: --> {member_data['wallet']}:coin:")
             elif result[0] == result[1] or result[0] == result[2] or result[1] == result[2]:
@@ -135,9 +135,9 @@ class Games(commands.Cog):
                 member_data['wallet'] = load_member_data(message.author, message.guild)['wallet']
                 member_data['MoneyWon'] += 5 * int(amt)
                 member_data['MoneyWoninSlots'] += 5 * int(amt)
-                em = discord.Embed(title=":slot_machine: **WIN**",
+                em = Embed(title=":slot_machine: **WIN**",
                                    description=f"{result[0]} {result[1]} {result[2]} **5x**",
-                                   colour=discord.Color.from_rgb(60, 179, 113))
+                                   colour=Color.from_rgb(60, 179, 113))
                 em.add_field(name="Wallet",
                              value=f":inbox_tray: {member_data['wallet'] - 5 * int(amt)}:coin: --> {member_data['wallet']}:coin:")
             else:
@@ -145,8 +145,8 @@ class Games(commands.Cog):
                 member_data['wallet'] = load_member_data(message.author, message.guild)['wallet']
                 member_data['MoneyLost'] += int(amt)
                 member_data['MoneyLostinSlots'] += int(amt)
-                em = discord.Embed(title=":slot_machine: **LOSS**", description=f"{result[0]} {result[1]} {result[2]}",
-                                   colour=discord.Color.from_rgb(220, 20, 60))
+                em = Embed(title=":slot_machine: **LOSS**", description=f"{result[0]} {result[1]} {result[2]}",
+                                   colour=Color.from_rgb(220, 20, 60))
                 em.add_field(name="Wallet",
                              value=f":outbox_tray: {member_data['wallet'] + int(amt)}:coin: --> {member_data['wallet']}:coin:")
 
@@ -177,7 +177,7 @@ class Games(commands.Cog):
                 else:
                     answer = 'jackpot'
 
-                em = discord.Embed(title=":chart_with_upwards_trend::chart_with_downwards_trend: High-low game",
+                em = Embed(title=":chart_with_upwards_trend::chart_with_downwards_trend: High-low game",
                                    description="A number between 1 and 100 was chosen.")
                 em.add_field(name='Hint', value=f'**{hint}**', inline=True)
                 em.add_field(name='Bet', value=f'**{bet}**:coin:', inline=False)
@@ -197,9 +197,9 @@ class Games(commands.Cog):
                 if answer == "jackpot" and msg.content.lower() == answer:
                     member_data['MoneyWon'] += bet * 10
                     member_data['MoneyWoninHighLow'] += bet * 10
-                    em = discord.Embed(title="You won!",
+                    em = Embed(title="You won!",
                                        description=f"The hint was **{hint}**, and the number was **{secret}**",
-                                       colour=discord.Color.from_rgb(60, 179, 113))
+                                       colour=Color.from_rgb(60, 179, 113))
                     em.add_field(name="Wallet",
                                  value=f":inbox_tray:**{wallet_bal}:coin: --> {wallet_bal + int(10 * bet)}:coin: (Jackpot!!!)**")
                     member_data['wallet'] += int(10 * bet)
@@ -209,9 +209,9 @@ class Games(commands.Cog):
                 elif msg.content.lower() == answer:
                     member_data['MoneyWon'] += bet
                     member_data['MoneyWoninHighLow'] += bet
-                    em = discord.Embed(title="You won!",
+                    em = Embed(title="You won!",
                                        description=f"The hint was **{hint}**, and the number was **{secret}**",
-                                       colour=discord.Color.from_rgb(60, 179, 113))
+                                       colour=Color.from_rgb(60, 179, 113))
                     em.add_field(name="Wallet",
                                  value=f":inbox_tray:**{wallet_bal}:coin: --> {wallet_bal + bet}:coin:**")
                     member_data['wallet'] += bet
@@ -221,9 +221,9 @@ class Games(commands.Cog):
                 else:
                     member_data['MoneyLost'] += bet
                     member_data['MoneyLostinHighLow'] += bet
-                    em = discord.Embed(title="You lost!",
+                    em = Embed(title="You lost!",
                                        description=f"The hint was **{hint}**, and the number was **{secret}**",
-                                       colour=discord.Color.from_rgb(220, 20, 60))
+                                       colour=Color.from_rgb(220, 20, 60))
                     em.add_field(name="Wallet",
                                  value=f":inbox_tray:**{wallet_bal}:coin: --> {wallet_bal - bet}:coin:**")
                     member_data['wallet'] -= bet
@@ -267,9 +267,9 @@ class Games(commands.Cog):
                         if not random.choice(chamber):
                             total_won += int(amt * ROULETTE_MULTIPLIER * (loaded_rounds/2))
 
-                            em = discord.Embed(title=":gun: Roulette",
+                            em = Embed(title=":gun: Roulette",
                                                description=":hot_face: **You survived!**",
-                                               colour=discord.Color.from_rgb(60, 179, 113))
+                                               colour=Color.from_rgb(60, 179, 113))
                             em.add_field(name=":moneybag: Prize", value=f"{total_won}:coin:")
                             em.add_field(name="Next prize",
                                          value=f"{total_won + int(total_won * ROULETTE_MULTIPLIER * (loaded_rounds / 2))}:coin:",
@@ -291,9 +291,9 @@ class Games(commands.Cog):
                                     if not random.choice(chamber):
                                         total_won += int(total_won * ROULETTE_MULTIPLIER * (loaded_rounds/2))
 
-                                        em = discord.Embed(title=":gun: Roulette",
+                                        em = Embed(title=":gun: Roulette",
                                                            description=":hot_face: **You survived!**",
-                                                           colour=discord.Color.from_rgb(60, 179, 113))
+                                                           colour=Color.from_rgb(60, 179, 113))
                                         em.add_field(name=":moneybag: Prize", value=f"{total_won}:coin:")
                                         em.add_field(name="Next prize",
                                                      value=f"{total_won + int(total_won * ROULETTE_MULTIPLIER * (loaded_rounds/2))}:coin:", inline=False)
@@ -301,9 +301,9 @@ class Games(commands.Cog):
 
                                         await ctx.channel.send(embed=em)
                                     else:
-                                        em = discord.Embed(title=":gun: Roulette",
+                                        em = Embed(title=":gun: Roulette",
                                                            description=":skull_crossbones: **You lost!**",
-                                                           colour=discord.Color.from_rgb(220, 20, 60))
+                                                           colour=Color.from_rgb(220, 20, 60))
                                         em.add_field(name="Wallet",
                                                      value=":outbox_tray: Wallet: {}:coin: --> {}:coin:".format(
                                                          member_wallet,
@@ -316,8 +316,8 @@ class Games(commands.Cog):
                                         stop_roulette(ctx, -amt, member_wallet, member_data)
                                         break
                                 elif msg.content == "stop":
-                                    em = discord.Embed(title=":gun: Roulette", description=":no_good: You exited!",
-                                                       colour=discord.Color.from_rgb(60, 179, 113))
+                                    em = Embed(title=":gun: Roulette", description=":no_good: You exited!",
+                                                       colour=Color.from_rgb(60, 179, 113))
                                     em.add_field(name="Wallet",
                                                  value=":inbox_tray: {}:coin: --> {}:coin:".format(member_wallet,
                                                                                                    member_wallet +
@@ -330,8 +330,8 @@ class Games(commands.Cog):
                                     stop_roulette(ctx, total_won, member_wallet, member_data)
                                     break
                         else:
-                            em = discord.Embed(title=":gun: Roulette", description=":skull_crossbones: **You lost!**",
-                                               colour=discord.Color.from_rgb(220, 20, 60))
+                            em = Embed(title=":gun: Roulette", description=":skull_crossbones: **You lost!**",
+                                               colour=Color.from_rgb(220, 20, 60))
                             em.add_field(name="Wallet",
                                          value=":outbox_tray: Wallet: {}:coin: --> {}:coin:".format(member_wallet,
                                                                                                     member_wallet - int(
@@ -350,7 +350,7 @@ class Games(commands.Cog):
             await ctx.channel.send("Enter **valid** values!")
 
     @commands.command()
-    async def rob(self, message, member: discord.Member = None):
+    async def rob(self, message, member: Member = None):
         if member is not None and member != message.author:
             author_data = load_member_data(message.author, message.guild)
             member_data = load_member_data(member, message.guild)
@@ -371,15 +371,15 @@ class Games(commands.Cog):
                     member_data['TimesSuccessfullyRobbed'] += 1
                     author_data['TotalRobberyProfit'] += robamount
 
-                    em = discord.Embed(title=":white_check_mark: Robbed {} successfully!".format(member.display_name),
-                                       colour=discord.Color.from_rgb(60, 179, 113))
+                    em = Embed(title=":white_check_mark: Robbed {} successfully!".format(member.display_name),
+                                       colour=Color.from_rgb(60, 179, 113))
 
                     em.add_field(name=":moneybag: Robber", value=message.author.mention)
                     em.add_field(name="Victim", value=member.mention)
                     em.add_field(name="Money stolen", value=f"{robamount}:coin:")
 
-                    dm = discord.Embed(title=":exclamation: **You were robbed!!!**",
-                                       colour=discord.Color.from_rgb(220, 20, 60))
+                    dm = Embed(title=":exclamation: **You were robbed!!!**",
+                                       colour=Color.from_rgb(220, 20, 60))
                     dm.add_field(name=":moneybag: Robber", value=message.author.mention)
                     dm.add_field(name="Money stolen", value=f"{robamount}:coin:")
 
@@ -395,16 +395,16 @@ class Games(commands.Cog):
                                                                                                     message.guild,
                                                                                                     3 * robamount)
 
-                    em = discord.Embed(title=":man_police_officer: {} was caught!".format(message.author.display_name),
-                                       colour=discord.Color.from_rgb(220, 20, 60))
+                    em = Embed(title=":man_police_officer: {} was caught!".format(message.author.display_name),
+                                       colour=Color.from_rgb(220, 20, 60))
 
                     em.add_field(name=":moneybag: Robber", value=message.author.mention)
                     em.add_field(name="Victim", value=member.mention)
                     em.add_field(name="Fee", value=f"{robamount * 3}:coin:")
 
-                    dm = discord.Embed(title=":exclamation: **Rob attempt!!!**",
+                    dm = Embed(title=":exclamation: **Rob attempt!!!**",
                                        description=f"{message.author.mention} attempted to rob you, but got caught",
-                                       colour=discord.Color.from_rgb(220, 20, 60))
+                                       colour=Color.from_rgb(220, 20, 60))
                     dm.add_field(name=":moneybag: Robber", value=message.author.mention)
                     dm.add_field(name="Fee", value=f"{robamount * 3}:coin:")
 
