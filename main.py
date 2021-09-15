@@ -145,7 +145,7 @@ async def on_member_left(member):
 
 @slash.slash(name="ping",description="Pings the bot", guild_ids=guilds_ids)
 async def ping(ctx: SlashContext):
-    embed = Embed(title="Embed Test")
+    embed = Embed(title=f'My latency is **{int(bot.latency * 1000)}** ms')
     await ctx.send(embed=embed)
 
 
@@ -198,18 +198,16 @@ async def server_info(ctx):
 async def user_info(ctx: SlashContext, member: Member = None, mode='full'):
     print(member)
     print(ctx.author)
-
-    return
-    #if member is None:
-    #    md = load_member_data(ctx.author, ctx.guild)
-    #    info_owner = ctx.author.display_name
-    #    user_age = time.time() - ctx.message.author.created_at.timestamp()
-    #    creationDate = ctx.message.author.created_at
-    #else:
-    #    md = load_member_data(member, ctx.guild)
-    #    info_owner = member.display_name
-    #    user_age = time.time() - member.created_at.timestamp()
-    #    creationDate = member.created_at
+    if member is None:
+        md = load_member_data(ctx.author, ctx.guild)
+        info_owner = ctx.author.display_name
+        #user_age = time.time() - ctx.message.author.created_at.timestamp()
+        creationDate = ctx.author.created_at
+    else:
+        md = load_member_data(member, ctx.guild)
+        info_owner = member.display_name
+        #user_age = time.time() - member.created_at.timestamp()
+        creationDate = member.created_at
 
     em = Embed(title=f':ledger: {info_owner}', colour=Color.from_rgb(255, 211, 0))
     if mode == "full":
@@ -239,8 +237,8 @@ async def user_info(ctx: SlashContext, member: Member = None, mode='full'):
                                                        Successful robberies = {md['SuccessfulRobberies']}\n\
                                                        The amount of times you were tried to get robbed = {md['TimesRobbed']}\n\
                                                        The amount of times you were succesfully robbed = {md['TimesSuccessfullyRobbed']}")
-        em.add_field(name='General info',      value=f"The account age = {int(user_age // 31536000)}y {int(user_age // 86400) - int(user_age // 31536000 * 365)}d {int(user_age // 3600) - int(user_age // 86400) * 24}h {int(user_age // 60) - int(user_age // 3600) * 60}m\n\
-                                                       The account creation date = {creationDate.year}-{creationDate.month}-{creationDate.day}")
+        #em.add_field(name='General info',      value=f"The account age = {int(user_age // 31536000)}y {int(user_age // 86400) - int(user_age // 31536000 * 365)}d {int(user_age // 3600) - int(user_age // 86400) * 24}h {int(user_age // 60) - int(user_age // 3600) * 60}m\n\
+        #                                               The account creation date = {creationDate.year}-{creationDate.month}-{creationDate.day}")
 
 
     elif mode == "money" or mode == "m":
@@ -277,7 +275,9 @@ async def user_info(ctx: SlashContext, member: Member = None, mode='full'):
         await ctx.channel.send(":x: No such a mode check `#help user_info` for the syntax")
         return
 
-    await ctx.channel.send(embed=em)
+    
+
+    await ctx.send(embed=em)
 
 
 @bot.command()
