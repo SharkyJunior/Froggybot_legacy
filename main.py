@@ -149,6 +149,8 @@ async def ping(ctx: SlashContext):
     await ctx.send(embed=embed)
 
 
+
+#kek
 @bot.command()
 async def cdmd(ctx, member: User = None):
     if member is None:
