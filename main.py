@@ -5,14 +5,18 @@ import datetime
 import asyncio
 import time
 import operator
-from discord_slash import SlashCommand, SlashContext
+from discord_slash import *
 
 from discord.utils import *
 from discord import *
 from discord.ext import commands
 from discord.ext.commands import cooldown, CommandOnCooldown, MissingRequiredArgument, MissingRole, MissingPermissions
+from discord_slash.error import SlashCommandError
 
-from info_operator import *
+from data_handler import *
+from extensions import *
+
+from discord_slash.utils.manage_components import *
 
 TOKEN = 'ODM3MzIwODIxMDAwODk2NTYy.YIq1yA.w4nZlr7tfs0jyUGrvauASD8VqrI'
 PREFIX = '#'
@@ -28,9 +32,9 @@ intents = Intents.all()
 intents.members = True
 activity = Game(name='#help')
 bot = commands.Bot(command_prefix=PREFIX, activity=activity, intents=intents)
-slash = SlashCommand(bot, sync_commands=True)
-bot.remove_command('help')
 guilds_ids = [839566467375956041]
+
+format_defaul_data()
 
 
 @bot.listen('on_message')
@@ -43,11 +47,6 @@ async def message_tracker(message):
             level = member_data["Level"]
             await message.channel.send(f"{message.author.mention} Congrats! You achieved level {level}")
         save_member_data(member_data, message.author, message.guild)
-
-
-@bot.command()
-async def ping(msg):
-    await msg.channel.send(f'My latency is **{int(bot.latency * 1000)}** ms')
 
 @bot.command()
 @commands.has_permissions(administrator=True)
@@ -143,14 +142,12 @@ async def on_member_left(member):
             await p.send(server_info["on-member-left-dm"])
 
 
-@slash.slash(name="ping",description="Pings the bot", guild_ids=guilds_ids)
+@bot.slash_command(name="ping",description="Pings the bot", guild_ids=guilds_ids)
 async def ping(ctx: SlashContext):
     embed = Embed(title=f'My latency is **{int(bot.latency * 1000)}** ms')
     await ctx.send(embed=embed)
 
 
-
-#kek
 @bot.command()
 async def cdmd(ctx, member: User = None):
     if member is None:
@@ -196,22 +193,31 @@ async def server_info(ctx):
     await ctx.channel.send(":x: Nothing made here yet! :no_good:")
     server_info = ctx.guild
 
-@slash.slash(name='user_info', description='Shows person\'s statistics', guild_ids=guilds_ids)
+
+@bot.user_command(name='User Info', description='Shows person\'s statistics', guild_ids=guilds_ids)
 async def user_info(ctx: SlashContext, member: Member = None, mode='full'):
-    print(member)
-    print(ctx.author)
     if member is None:
         md = load_member_data(ctx.author, ctx.guild)
         info_owner = ctx.author.display_name
-        #user_age = time.time() - ctx.message.author.created_at.timestamp()
         creationDate = ctx.author.created_at
     else:
         md = load_member_data(member, ctx.guild)
         info_owner = member.display_name
-        #user_age = time.time() - member.created_at.timestamp()
+        user_age = time.time() - member.created_at.timestamp()
         creationDate = member.created_at
 
+    '''
+    select = create_select(options=[
+        create_select_option("full", value="f"),
+        create_select_option("money", value="m"),
+        create_select_option("games", value="g")],
+        placeholder="select type pls").se
+    
+    action_row = create_actionrow(select)
+    '''
     em = Embed(title=f':ledger: {info_owner}', colour=Color.from_rgb(255, 211, 0))
+
+    #mode = select
     if mode == "full":
         em.add_field(name='Money stats',       value=f"Money total won = {md['MoneyWon']}:coin:\n\
                                                        Money total lost = {md['MoneyLost']}:coin:\n\
@@ -277,77 +283,80 @@ async def user_info(ctx: SlashContext, member: Member = None, mode='full'):
         await ctx.channel.send(":x: No such a mode check `#help user_info` for the syntax")
         return
 
-    
-
-    await ctx.send(embed=em)
+    await ctx.send(embed=em)#, components=[action_row]
 
 
-@bot.command()
-@cooldown(1, 60 * 60 * 24, commands.BucketType.user)
+@bot.slash_command(name='daily', description='Collects your daily reward', guild_ids=guilds_ids)
+@commands.cooldown(1, 60 * 60 * 24, commands.BucketType.user)
 async def daily(ctx):
     member_data = load_member_data(ctx.author, ctx.guild)
     member_data['DailyRewardsCollected'] += 1
     bal = member_data['bank']
-    member_data['lastMessage'] = ctx.message.content
+    #member_data['lastMessage'] = ctx.content
     bank_money = member_data['bank']
     if int(bal * DAILY_MULTIPLIER) > DAILY_LIMIT:
         amt = int(bank_money * DAILY_MULTIPLIER)
-        bank_money = add_money(ctx.message.author, ctx.guild, amt)
+        bank_money = add_money(ctx.author, ctx.guild, amt)
         member_data['MoneyGotfromDailyRewards'] += amt
         bal1 = bal + int(member_data['bank'] * DAILY_MULTIPLIER)
 
-        em = Embed(title=f":white_check_mark: {ctx.message.author.display_name}'s daily reward",
+        em = Embed(title=f":white_check_mark: {ctx.author.display_name}'s daily reward",
                            colour=Color.from_rgb(60, 179, 113))
         em.add_field(name="Bank", value=":inbox_tray: **{}:coin: --> {}:coin:**".format(bal, bal1))
-        await ctx.message.channel.send(embed=em)
+        await ctx.send(embed=em)
     else:
-        bank_money = add_money(ctx.message.author, ctx.guild, DAILY_LIMIT)
+        bank_money = add_money(ctx.author, ctx.guild, DAILY_LIMIT)
         member_data['MoneyGotfromDailyRewards'] += DAILY_LIMIT
         bal1 = bal + DAILY_LIMIT
 
-        em = Embed(title=f":white_check_mark: {ctx.message.author.display_name}'s daily reward",
+        em = Embed(title=f":white_check_mark: {ctx.author.display_name}'s daily reward",
                            colour=Color.from_rgb(60, 179, 113))
         em.add_field(name="Bank", value=":inbox_tray: **{}:coin: --> {}:coin:**".format(bal, bal1))
-        await ctx.message.channel.send(embed=em)
+        await ctx.send(embed=em)
     member_data['bank'] = bank_money
     save_member_data(member_data, ctx.author, ctx.guild)
 
+async def daily_error(error, ctx):
+    if isinstance(error, CommandOnCooldown):
+        ctx.send(":x:**You're already working. Come back in {}m {}s to collect the payment again.**".format(
+                int((error.retry_after % 3600) // 60), int(error.retry_after % 60)))
 
-@bot.command()
-@cooldown(1, 60 * 60, commands.BucketType.user)
+
+@bot.slash_command(name='work', description='Do some work and get paid', guild_ids=guilds_ids)
+@commands.cooldown(1, 60 * 60, commands.BucketType.user)
 async def work(ctx):
     member_data = load_member_data(ctx.author, ctx.guild)
     member_data["WorksCollected"] += 1
-    member_data['lastMessage'] = ctx.message.content
+    #member_data['lastMessage'] = ctx.content
     bank_money = member_data['bank']
     bal = member_data['bank']
     work_multiplier = random.uniform(0.05, 0.1)
     if int(bal * work_multiplier) > WORK_LIMIT:
-        bank_money = add_money(ctx.message.author, ctx.guild, int(member_data['bank'] * work_multiplier))
+        bank_money = add_money(ctx.author, ctx.guild, int(member_data['bank'] * work_multiplier))
         member_data['MoneyGotfromWorkPayments'] += int(member_data['bank'] * work_multiplier)
         bal1 = bal + int(member_data['bank'] * work_multiplier)
         em = Embed(
-            title=f":white_check_mark: {ctx.message.author.display_name}'s work payment, come back in 1 hour to collect next one",
+            title=f":white_check_mark: {ctx.author.display_name}'s work payment, come back in 1 hour to work again",
             colour=Color.from_rgb(60, 179, 113))
         em.add_field(name="Bank", value=":inbox_tray: **{}:coin: --> {}:coin:**".format(bal, bal1))
-        await ctx.message.channel.send(embed=em)
+        await ctx.send(embed=em)
     else:
-        bank_money = add_money(ctx.message.author, ctx.guild, WORK_LIMIT)
+        bank_money = add_money(ctx.author, ctx.guild, WORK_LIMIT)
         member_data['MoneyGotfromWorkPayments'] += WORK_LIMIT
         bal1 = bal + WORK_LIMIT
 
         em = Embed(
-            title=f":white_check_mark: {ctx.message.author.display_name}'s work payment, come back in 1 hour to collect next one",
+            title=f":white_check_mark: {ctx.author.display_name}'s work payment, come back in 1 hour to work again",
             colour=Color.from_rgb(60, 179, 113))
         em.add_field(name="Bank", value=":inbox_tray: **{}:coin: --> {}:coin:**".format(bal, bal1))
-        await ctx.message.channel.send(embed=em)
+        await ctx.send(embed=em)
     member_data['bank'] = bank_money
     save_member_data(member_data, ctx.author, ctx.guild)
 
 
 # error messages
-# @bot.event
-async def on_command_error(ctx, exc):
+@bot.event
+async def on_application_command_error(ctx, exc):
     if isinstance(exc, CommandOnCooldown):
         print('CommandOnCooldown error')
         if ctx.message.content == "#work":
@@ -538,9 +547,10 @@ def to_sec(time):
 
 
 # importing cogs
-#for filename in os.listdir('./cogs'):
-#    if filename.endswith('.py'):
-#        bot.load_extension(f'cogs.{filename[:-3]}')
+
+for filename in os.listdir('./cogs'):
+    if filename.endswith('.py') and not filename.startswith("_"):
+        bot.load_extension(f'cogs.{filename[:-3]}')
 
 
 bot.loop.create_task(change_status())  # enabling changing status

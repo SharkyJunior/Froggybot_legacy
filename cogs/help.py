@@ -1,5 +1,4 @@
-import discord
-from discord.ext import commands
+from main import *
 
 # initializing cog
 class Help(commands.Cog):
@@ -14,7 +13,7 @@ class Help(commands.Cog):
     # initiate help command
     @commands.group(invoke_without_command=True)
     async def help(self, message):
-        em = discord.Embed(title="Help menu", description="Use **#help <command>** for detail information",
+        em = Embed(title="Help menu", description="Use **#help <command>** for detail information",
                            colour=message.author.color)
 
         em.add_field(name=":moneybag: Economy",
@@ -28,7 +27,7 @@ class Help(commands.Cog):
     #then it goes for each command
     @help.command()
     async def addmoney(self, message):
-        em = discord.Embed(title="addmoney", description="Adds a written amount of coins to person's bank account",
+        em = Embed(title="addmoney", description="Adds a written amount of coins to person's bank account",
                            colour=message.author.color)
         em.add_field(name="**Syntax**", value="`#addmoney [amount] <member>(optional)`")
         em.add_field(name="**Aliases**", value="`#am, #addm`")
@@ -37,7 +36,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def balance(self, message):
-        em = discord.Embed(title="balance", description="Shows person's bank and wallet balance",
+        em = Embed(title="balance", description="Shows person's bank and wallet balance",
                            colour=message.author.color)
         em.add_field(name="**Syntax**", value="`#balance <member>(optional)`")
         em.add_field(name="**Aliases**", value="`#bal`")
@@ -45,14 +44,14 @@ class Help(commands.Cog):
 
     @help.command()
     async def daily(self, message):
-        em = discord.Embed(title="daily", description="Claims your daily reward (40% of your bank account)",
+        em = Embed(title="daily", description="Claims your daily reward (40% of your bank account)",
                            colour=message.author.color)
         em.add_field(name="**Syntax**", value="`#daily`")
         await message.send(embed=em)
 
     @help.command()
     async def leaderboard(self, message):
-        em = discord.Embed(title="leaderboard", description="Shows server's leaderboard in chosen category.",
+        em = Embed(title="leaderboard", description="Shows server's leaderboard in chosen category.",
                            colour=message.author.color)
         em.add_field(name="**Syntax**", value="`#leaderboard <category>`")
         em.add_field(name="**Aliases**", value="`#lb`")
@@ -61,14 +60,14 @@ class Help(commands.Cog):
 
     @help.command()
     async def work(self, message):
-        em = discord.Embed(title="work", description="Go to work for a payment(5%-10% of your bank account)",
+        em = Embed(title="work", description="Go to work for a payment(5%-10% of your bank account)",
                            colour=message.author.color)
         em.add_field(name="**Syntax**", value="`#work`")
         await message.send(embed=em)
 
     @help.command()
     async def deposit(self, message):
-        em = discord.Embed(title="deposit",
+        em = Embed(title="deposit",
                            description="Transfers a certain amount of money from wallet to bank account (10% fee)",
                            colour=message.author.color)
         em.add_field(name="**Syntax**", value="`#deposit [amount]`")
@@ -77,14 +76,14 @@ class Help(commands.Cog):
 
     @help.command()
     async def dice(self, message):
-        em = discord.Embed(title="dice", description="Throw 2 dice and win against computer!",
+        em = Embed(title="dice", description="Throw 2 dice and win against computer!",
                            colour=message.author.color)
         em.add_field(name="**Syntax**", value="`#dice [bet]`")
         await message.send(embed=em)
 
     @help.command()
     async def roulette(self, message):
-        em = discord.Embed(title="roulette", description="Try to survive in russian roulette and win coins!\n"
+        em = Embed(title="roulette", description="Try to survive in russian roulette and win coins!\n"
                                                          "More rounds you load - more you win",
                            colour=message.author.color)
         em.add_field(name="**Syntax**", value="`#roulette [bet] [loaded rounds (up to 5)]`")
@@ -93,7 +92,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def highlow(self, message):
-        em = discord.Embed(title="highlow",
+        em = Embed(title="highlow",
                            description="Guess whether chosen number is higher, lower or equals the hint and win coins!",
                            colour=message.author.color)
         em.add_field(name="**Syntax**", value="`#highlow [bet]`")
@@ -102,7 +101,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def slots(self, message):
-        em = discord.Embed(title="slots", description="Test your luck and win up to 100x your bet",
+        em = Embed(title="slots", description="Test your luck and win up to 100x your bet",
                            colour=message.author.color)
         em.add_field(name="**Possible results**",
                      value="2 in a row - **5x**\n3 in a row - **20x**\n:cherries::cherries::cherries: - **50x**\n:gem::gem::gem: - **100x**")
@@ -112,7 +111,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def removemoney(self, message):
-        em = discord.Embed(title="removemoney",
+        em = Embed(title="removemoney",
                            description="Substracts a written amount of coins from person's bank account",
                            colour=message.author.color)
         em.add_field(name="**Syntax**", value="`#removemoney [amount] <member>(optional)`")
@@ -122,14 +121,14 @@ class Help(commands.Cog):
 
     @help.command()
     async def rob(self, message):
-        em = discord.Embed(title="rob", description="Try to rob a person (you can be caught!)",
+        em = Embed(title="rob", description="Try to rob a person (you can be caught!)",
                            colour=message.author.color)
         em.add_field(name="**Syntax**", value="`#rob <member>`")
         await message.send(embed=em)
 
     @help.command()
     async def sendmoney(self, message):
-        em = discord.Embed(title="send",
+        em = Embed(title="send",
                            description="Transfers a certain amount of money from your bank account to a person's bank account",
                            colour=message.author.color)
         em.add_field(name="**Syntax**", value="`#send [amount] <member>`")
@@ -137,7 +136,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def setmoney(self, message):
-        em = discord.Embed(title="setmoney",
+        em = Embed(title="setmoney",
                            description="Sets the written amount of money in the person's bank account",
                            colour=message.author.color)
         em.add_field(name="**Syntax**", value="`#setmoney [amount] <member>(optional)`")
@@ -147,7 +146,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def withdraw(self, message):
-        em = discord.Embed(title="withdraw",
+        em = Embed(title="withdraw",
                            description="Transfers a certain amount of money from bank account to wallet",
                            colour=message.author.color)
         em.add_field(name="**Syntax**", value="`#withdraw [amount]`")
@@ -156,7 +155,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def kick(self, message):
-        em = discord.Embed(title="kick", description="Kicks a member from the server",
+        em = Embed(title="kick", description="Kicks a member from the server",
                            colour=message.author.color)
         em.add_field(name="**Syntax**", value="`#kick <member> <reason>(optional)`")
         em.add_field(name="Permissions", value="**kick members**")
@@ -164,7 +163,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def mute(self, message):
-        em = discord.Embed(title="mute", description="Mutes a member",
+        em = Embed(title="mute", description="Mutes a member",
                            colour=message.author.color)
         em.add_field(name="**Syntax**", value="`#mute <member> <reason>(optional)`")
         em.add_field(name="Permissions", value="**administrator**")
@@ -172,7 +171,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def tempmute(self, message):
-        em = discord.Embed(title="tempmute", description="Temporarily mutes a member",
+        em = Embed(title="tempmute", description="Temporarily mutes a member",
                            colour=message.author.color)
         em.add_field(name="**Syntax**", value="`#tempmute <member> [duration(for example: 10s)] <reason>(optional)`")
         em.add_field(name="Permissions", value="**administrator**")
@@ -180,7 +179,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def unmute(self, message):
-        em = discord.Embed(title="unmute", description="Unmute a member",
+        em = Embed(title="unmute", description="Unmute a member",
                            colour=message.author.color)
         em.add_field(name="**Syntax**", value="`#unmute <member>`")
         em.add_field(name="Permissions", value="**administrator**")
@@ -188,7 +187,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def ban(self, message):
-        em = discord.Embed(title="ban", description="Bans a member from the server",
+        em = Embed(title="ban", description="Bans a member from the server",
                            colour=message.author.color)
         em.add_field(name="**Syntax**", value="`#ban <member> <reason>(optional)`")
         em.add_field(name="Permissions", value="**ban members**")
@@ -196,7 +195,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def tempban(self, message):
-        em = discord.Embed(title="tempban", description="Temporarily bans a member from the server",
+        em = Embed(title="tempban", description="Temporarily bans a member from the server",
                            colour=message.author.color)
         em.add_field(name="**Syntax**", value="`#tempban <member> [duration(for example: 10s)] <reason>(optional)`")
         em.add_field(name="Permissions", value="**ban members**")
@@ -204,7 +203,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def unban(self, message):
-        em = discord.Embed(title="unban", description="Unbans a player",
+        em = Embed(title="unban", description="Unbans a player",
                            colour=message.author.color)
         em.add_field(name="**Syntax**", value="`#unban <name#discriminator>`")
         em.add_field(name="Permissions", value="**ban members**")
@@ -212,7 +211,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def clear(self, message):
-        em = discord.Embed(title="clear",
+        em = Embed(title="clear",
                            description="Clears given amount of messages (if amount wasn't typed, clears 100 messages)",
                            colour=message.author.color)
         em.add_field(name="**Syntax**", value="`#clear [amount](optional)`")
@@ -221,7 +220,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def clearmoney(self, message):
-        em = discord.Embed(title="clear", description="Clears wallet and bank account data",
+        em = Embed(title="clear", description="Clears wallet and bank account data",
                            colour=message.author.color)
         em.add_field(name="**Syntax**", value="`#clear <member>(optional)`")
         em.add_field(name="Permissions", value="**administrator**")
@@ -229,7 +228,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def giveaway_setup(self, message):
-        em = discord.Embed(title="giveaway_setup", description="Setups and creates a giveaway",
+        em = Embed(title="giveaway_setup", description="Setups and creates a giveaway",
                            colour=message.author.color)
         em.add_field(name="**Syntax**", value="`#giveaway_setup`")
         em.add_field(name="Permissions", value="**manage messages**")
@@ -238,7 +237,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def giveaway_start(self, message):
-        em = discord.Embed(title="giveaway_start", description="Instantly creates a giveaway",
+        em = Embed(title="giveaway_start", description="Instantly creates a giveaway",
                            colour=message.author.color)
         em.add_field(name="**Syntax**", value="`#giveaway_start [time] [winners amount] <channel> <prize>`")
         em.add_field(name="Permissions", value="**manage messages**")
@@ -247,7 +246,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def user_info(self, message):
-        em = discord.Embed(title="user_info", description="Gives you lots of information about a user",
+        em = Embed(title="user_info", description="Gives you lots of information about a user",
                            colour=message.author.color)
         em.add_field(name="**Syntax**", value="`#user_info [the info shown (mode)] [server member]`")
         em.add_field(name="Possible modes",

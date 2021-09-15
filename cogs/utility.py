@@ -27,7 +27,7 @@ class Utils(commands.Cog):
             banks.append([member, member_money])
             all_money += member_money
         banks = sorted(banks, key=operator.itemgetter(1), reverse=True)
-        em = discord.Embed(title=f"{message.guild.name}'s money leaderboard", colour=message.author.color)
+        em = Embed(title=f"{message.guild.name}'s money leaderboard", colour=message.author.color)
 
         places = 0
         if len(members) > 5:
@@ -66,7 +66,7 @@ class Utils(commands.Cog):
 
     @commands.command(aliases=['am', 'addm'])
     @commands.has_permissions(administrator=True)
-    async def addmoney(self, message, amt, member: discord.Member = None):
+    async def addmoney(self, message, amt, member: Member = None):
         if int(amt) > 0 and float(amt) % 1 == 0:
             if member is None:
                 member = message.author
@@ -74,8 +74,8 @@ class Utils(commands.Cog):
             bal = member_data['bank']
             add_money(member, message.guild, amt)
             bal1 = bal + int(amt)
-            em = discord.Embed(title=':white_check_mark: Operation complete!',
-                               colour=discord.Color.from_rgb(60, 179, 113))
+            em = Embed(title=':white_check_mark: Operation complete!',
+                               colour=Color.from_rgb(60, 179, 113))
             em.add_field(name="Recipient", value=member.mention)
             em.add_field(name="Bank", value=":inbox_tray: **{}:coin: --> {}:coin:**".format(bal, bal1))
             await message.channel.send(embed=em)
@@ -84,7 +84,7 @@ class Utils(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(administrator=True)
-    async def removemoney(self, message, amt, member: discord.Member = None):
+    async def removemoney(self, message, amt, member: Member = None):
         if int(amt) > 0 and float(amt) % 1 == 0:
             if member is None:
                 member = message.author
@@ -92,8 +92,8 @@ class Utils(commands.Cog):
             bal = member_data['bank']
             remove_money(member, message.guild, amt)
             bal1 = bal - int(amt)
-            em = discord.Embed(title=':white_check_mark: Operation complete!',
-                               colour=discord.Color.from_rgb(60, 179, 113))
+            em = Embed(title=':white_check_mark: Operation complete!',
+                               colour=Color.from_rgb(60, 179, 113))
             em.add_field(name="Recipient", value=member.mention)
             em.add_field(name="Bank", value=":outbox_tray: **{}:coin: --> {}:coin:**".format(bal, bal1))
             await message.channel.send(embed=em)
@@ -102,7 +102,7 @@ class Utils(commands.Cog):
 
     @commands.command(aliases=['sm', 'setm'])
     @commands.has_permissions(administrator=True)
-    async def setmoney(self, message, amt, member: discord.Member = None):
+    async def setmoney(self, message, amt, member: Member = None):
         if int(amt) >= 0 and float(amt) % 1 == 0:
             if member is None:
                 member = message.author
@@ -110,8 +110,8 @@ class Utils(commands.Cog):
             bal = member_data['bank']
             set_money(member, message.guild, amt)
             bal1 = int(amt)
-            em = discord.Embed(title=':white_check_mark: Operation complete!',
-                               colour=discord.Color.from_rgb(60, 179, 113))
+            em = Embed(title=':white_check_mark: Operation complete!',
+                               colour=Color.from_rgb(60, 179, 113))
             em.add_field(name="Recipient", value=member.mention)
             em.add_field(name="Bank", value=":inbox_tray: **{}:coin: --> {}:coin:**".format(bal, bal1))
             await message.channel.send(embed=em)
@@ -129,8 +129,8 @@ class Utils(commands.Cog):
                 bbal1 = bbal - int(amt)
                 wbal1 = wbal + int(amt)
 
-                embed = discord.Embed(title=':white_check_mark: Operation complete!',
-                                      colour=discord.Color.from_rgb(60, 179, 113))
+                embed = Embed(title=':white_check_mark: Operation complete!',
+                                      colour=Color.from_rgb(60, 179, 113))
                 embed.add_field(name="Requester", value=message.author.mention, inline=False)
                 embed.add_field(name="Bank", value=":outbox_tray: **{}:coin: --> {}:coin:**".format(bbal, bbal1))
                 embed.add_field(name="Wallet", value=":inbox_tray: **{}:coin: --> {}:coin:**".format(wbal, wbal1))
@@ -149,8 +149,8 @@ class Utils(commands.Cog):
                 bbal1 = 0
                 wbal1 = bbal + wbal
 
-                embed = discord.Embed(title=':white_check_mark: Operation complete!',
-                                      colour=discord.Color.from_rgb(60, 179, 113))
+                embed = Embed(title=':white_check_mark: Operation complete!',
+                                      colour=Color.from_rgb(60, 179, 113))
                 embed.add_field(name="Requester", value=message.author.mention, inline=False)
                 embed.add_field(name="Bank", value=":outbox_tray: **{}:coin: --> {}:coin:**".format(bbal, bbal1))
                 embed.add_field(name="Wallet", value=":inbox_tray: **{}:coin: --> {}:coin:**".format(wbal, wbal1))
@@ -171,8 +171,8 @@ class Utils(commands.Cog):
                 bbal1 = bbal + int(0.9 * int(amt))
                 wbal1 = wbal - int(amt)
 
-                embed = discord.Embed(title=':white_check_mark: Operation complete!',
-                                      colour=discord.Color.from_rgb(60, 179, 113))
+                embed = Embed(title=':white_check_mark: Operation complete!',
+                                      colour=Color.from_rgb(60, 179, 113))
                 embed.add_field(name="Requester", value=message.author.mention, inline=False)
                 embed.add_field(name="Wallet", value=":outbox_tray: **{}:coin: --> {}:coin:**".format(wbal, wbal1))
                 embed.add_field(name="Bank", value=":inbox_tray: **{}:coin: --> {}:coin:**".format(bbal, bbal1),
@@ -193,8 +193,8 @@ class Utils(commands.Cog):
                 fee = int(0.1 * wbal)
                 bbal1 = bbal + int(0.9 * wbal)
                 wbal1 = 0
-                embed = discord.Embed(title=':white_check_mark: Operation complete!',
-                                      colour=discord.Color.from_rgb(60, 179, 113))
+                embed = Embed(title=':white_check_mark: Operation complete!',
+                                      colour=Color.from_rgb(60, 179, 113))
                 embed.add_field(name="Requester", value=message.author.mention, inline=False)
                 embed.add_field(name="Wallet", value=":outbox_tray: **{}:coin: --> {}:coin:**".format(wbal, wbal1))
                 embed.add_field(name="Bank", value=":inbox_tray: **{}:coin: --> {}:coin:**".format(bbal, bbal1),
@@ -206,11 +206,11 @@ class Utils(commands.Cog):
                 await message.channel.send("You don't have any money in wallet")
 
     @commands.command(aliases=['bal'])
-    async def balance(self, message, member: discord.Member = None):
+    async def balance(self, message, member: Member = None):
         if member is None:
             member_data = load_member_data(message.author, message.guild)
 
-            embed = discord.Embed(title=f"{message.author.display_name}'s Balance", colour=message.author.color)
+            embed = Embed(title=f"{message.author.display_name}'s Balance", colour=message.author.color)
             embed.add_field(name="Wallet balance", value="{}:coin:".format(str(member_data['wallet'])), inline=False)
             embed.add_field(name="Bank balance", value="{}:coin:".format(str(member_data['bank'])))
 
@@ -218,14 +218,14 @@ class Utils(commands.Cog):
         else:
             member_data = load_member_data(member, message.guild)
 
-            embed = discord.Embed(title=f"{member.display_name}'s balance", colour=member.color)
+            embed = Embed(title=f"{member.display_name}'s balance", colour=member.color)
             embed.add_field(name="Wallet balance", value="{}:coin:".format(str(member_data['wallet'])), inline=False)
             embed.add_field(name="Bank balance", value="{}:coin:".format(str(member_data['bank'])))
 
             await message.channel.send(embed=embed)
 
     @commands.command()
-    async def sendmoney(self, message, amt, member: discord.Member = None):
+    async def sendmoney(self, message, amt, member: Member = None):
         author_data = load_member_data(message.author, message.guild)
         member_data = load_member_data(member, message.guild)
         if author_data['bank'] >= int(amt) > 0 and message.author != member:
@@ -235,8 +235,8 @@ class Utils(commands.Cog):
             abbal1 = abbal - int(amt)
             mbbal1 = mbbal + int(amt)
 
-            embed = discord.Embed(title=':white_check_mark: Operation complete!',
-                                  colour=discord.Color.from_rgb(60, 179, 113))
+            embed = Embed(title=':white_check_mark: Operation complete!',
+                                  colour=Color.from_rgb(60, 179, 113))
             embed.add_field(name="Sender", value=message.author.mention, inline=True)
             embed.add_field(name="Receiver", value=member.mention)
             embed.add_field(name="\u200b", value='\u200b')
@@ -256,7 +256,7 @@ class Utils(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(administrator=True)
-    async def clearmoney(self, message, member: discord.Member = None):
+    async def clearmoney(self, message, member: Member = None):
         if member is None:
             member_data = load_member_data(message.author, message.guild)
             member_data['wallet'] = 0
@@ -272,7 +272,7 @@ class Utils(commands.Cog):
             await message.channel.send(f":white_check_mark: **Cleared {member.mention}'s account successfully!**")
 
     @commands.command()
-    async def senditem(self, ctx, quantity, item, member: discord.Member):
+    async def senditem(self, ctx, quantity, item, member: Member):
         if quantity.isnumeric():
             quantity = int(quantity)
             if quantity > 0:
@@ -292,7 +292,7 @@ class Utils(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(administrator=True)
-    async def additem(self, ctx, quantity, item, member: discord.Member = None):
+    async def additem(self, ctx, quantity, item, member: Member = None):
         if quantity.isnumeric():
             quantity = int(quantity)
             if quantity > 0:
@@ -307,7 +307,7 @@ class Utils(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(administrator=True)
-    async def removeitem(self, ctx, quantity, item, member: discord.Member = None):
+    async def removeitem(self, ctx, quantity, item, member: Member = None):
         if quantity.isnumeric():
             quantity = int(quantity)
             if quantity > 0:
@@ -333,7 +333,7 @@ class Utils(commands.Cog):
             await ctx.channel.send("Enter a **valid** value!")
 
     @commands.command()
-    async def inventory(self, ctx, member: discord.Member = None):
+    async def inventory(self, ctx, member: Member = None):
         if member is None:
             member = ctx.author
 
@@ -353,7 +353,7 @@ class Utils(commands.Cog):
 
         for i in range(pages):
             if items_quantity - i * max_items > max_items or items_quantity - i * max_items == 0:
-                em = discord.Embed(title=f'{member.display_name}\'s inventory', description=f'Page {i + 1}/{pages}',
+                em = Embed(title=f'{member.display_name}\'s inventory', description=f'Page {i + 1}/{pages}',
                                    color=ctx.author.color)
                 em.set_footer(text=f"Requester: {ctx.author.display_name}")
                 for j in items[i * max_items:(i + 1) * max_items]:
@@ -362,7 +362,7 @@ class Utils(commands.Cog):
 
                 content.append(em)
             elif items_quantity - i * max_items in [k for k in range(1, max_items)]:
-                em = discord.Embed(title=f'{member.display_name}\'s shop', description=f'Page {i + 1}/{pages}',
+                em = Embed(title=f'{member.display_name}\'s shop', description=f'Page {i + 1}/{pages}',
                                    color=ctx.author.color)
                 em.set_footer(text=f"Requester: {ctx.author.display_name}")
                 for j in items[i * max_items:]:
@@ -410,7 +410,7 @@ class Utils(commands.Cog):
                 # ending the loop if user doesn't react after x seconds
 
     @commands.command()
-    async def level(self, ctx, member: discord.Member = None):
+    async def level(self, ctx, member: Member = None):
         if member is None:
             member = ctx.author
 

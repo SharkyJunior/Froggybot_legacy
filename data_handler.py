@@ -1,6 +1,9 @@
 import json
 
-FILENAME = "data.json"
+MEMBER_DATA_FILE = ".\data\member-data.json"
+DEFAULT_DATA_FILE = ".\data\default-data.json"
+CONFIG_FILE = ".\data\config.json"
+GUILD_SETTINGS_FILE = ".\data\guild-settings.json"
 
 DEFAULT_DATA = {"DEFAULT_SERVER_INFO": {
                         "server-info":
@@ -53,31 +56,10 @@ DEFAULT_DATA = {"DEFAULT_SERVER_INFO": {
 
 
 # data loaders
-def load_member_data(member, guild):
-    data = load_guild_data(guild)
-    if str(member.id) not in data:
-        create_default_member_data(member, guild)
-
-        data = load_guild_data(guild)
-
-    return data[str(member.id)]
 
 
-def load_guild_data(guild):
-    data = load_full_data()
-    if str(guild.id) not in data:
-        create_default_guild_data(guild)
-
-        data = load_full_data()
-
-    return data[str(guild.id)]
 
 
-def load_full_data():
-    with open(FILENAME, 'r') as file:
-        data = json.load(file)
-
-    return data
 
 
 def load_server_data(guild):
@@ -114,23 +96,6 @@ def load_inventory_data(member, guild):
 
 
 # data savers
-def save_member_data(data, member, guild):
-    guild_data = load_guild_data(guild)
-    guild_data[str(member.id)] = data
-    save_guild_data(guild_data, guild)
-
-
-def save_guild_data(data, guild):
-    full_data = load_full_data()
-    full_data[str(guild.id)].update(data)
-    save_full_data(full_data)
-
-
-def save_full_data(full_data):
-    with open(FILENAME, 'w') as f:
-        json.dump(full_data, f, indent=4)
-
-
 def save_server_data(server_data, guild):
     guild_data = load_guild_data(guild)
     guild_data["server-info"] = server_data
@@ -150,6 +115,59 @@ def save_inventory_data(inventory_data, member, guild):
 
 
 # data management
+
+
+def create_default_server_data(guild):
+    guild_data = load_guild_data(guild)
+
+    guild_data["server-info"] = DEFAULT_DATA["DEFAULT_SERVER_INFO"]["server-info"]
+
+    save_guild_data(guild_data, guild)
+
+
+
+
+def create_default_shop_data(guild):
+    server_data = load_server_data(guild)
+
+    server_data["shop"] = DEFAULT_DATA["DEFAULT_SHOP_INFO"]
+
+    save_server_data(server_data, guild)
+
+
+def create_default_inventory_data(member, guild):
+    member_data = load_member_data(member, guild)
+    member_data["Inventory"] = DEFAULT_DATA["DEFAULT_INVENTORY"]
+    save_member_data(member_data, member, guild)
+
+
+
+
+#region guild-settings
+
+#endregion
+
+#region full-guild-settings
+
+#endregion
+
+#region member-data
+def load_member_data(member, guild):
+    data = load_guild_data(guild)
+    if str(member.id) not in data:
+        create_default_member_data(member, guild)
+
+        data = load_guild_data(guild)
+
+    return data[str(member.id)]
+
+
+def save_member_data(data, member, guild):
+    guild_data = load_guild_data(guild)
+    guild_data[str(member.id)] = data
+    save_guild_data(guild_data, guild)
+
+
 def create_default_member_data(member, guild):
     guild_data = load_guild_data(guild)
     member_data = DEFAULT_DATA["DEFAULT_MEMBER_INFO"]
@@ -157,6 +175,24 @@ def create_default_member_data(member, guild):
     guild_data[str(member.id)] = member_data
 
     save_guild_data(guild_data, guild)
+
+#endregion
+
+#region guild-data
+def load_guild_data(guild):
+    data = load_full_data()
+    if str(guild.id) not in data:
+        create_default_guild_data(guild)
+
+        data = load_full_data()
+
+    return data[str(guild.id)]
+
+
+def save_guild_data(data, guild):
+    full_data = load_full_data()
+    full_data[str(guild.id)].update(data)
+    save_full_data(full_data)
 
 
 def create_default_guild_data(guild):
@@ -173,22 +209,8 @@ def create_default_guild_data(guild):
             members_amt += 1
 
     guild_data["server-info"]["members"] = members_amt
-
     full[str(guild.id)] = guild_data
-
     save_full_data(full)
-
-
-def create_default_data():
-    save_full_data(dict())
-
-
-def create_default_server_data(guild):
-    guild_data = load_guild_data(guild)
-
-    guild_data["server-info"] = DEFAULT_DATA["DEFAULT_SERVER_INFO"]["server-info"]
-
-    save_guild_data(guild_data, guild)
 
 
 def remove_guild_data(guild):
@@ -196,16 +218,37 @@ def remove_guild_data(guild):
     del full_data[str(guild.id)]
     save_full_data(full_data)
 
+#endregion
 
-def create_default_shop_data(guild):
-    server_data = load_server_data(guild)
-
-    server_data["shop"] = DEFAULT_DATA["DEFAULT_SHOP_INFO"]
-
-    save_server_data(server_data, guild)
+#region full-data
+def load_full_data():
+    return load_data(MEMBER_DATA_FILE)
 
 
-def create_default_inventory_data(member, guild):
-    member_data = load_member_data(member, guild)
-    member_data["Inventory"] = DEFAULT_DATA["DEFAULT_INVENTORY"]
-    save_member_data(member_data, member, guild)
+def save_full_data(full_data):
+    save_data(MEMBER_DATA_FILE, full_data)
+
+
+def create_default_data():
+    save_full_data(dict())
+
+#endregion
+
+#region service
+def load_default_data():
+    return load_data(DEFAULT_DATA_FILE)
+
+def format_defaul_data():
+    save_data(DEFAULT_DATA_FILE, load_default_data())
+
+
+def load_data(filename):
+    with open(filename, 'r') as f:
+        return json.load(f)
+
+
+def save_data(filename, data):
+    with open(filename, 'w') as f:
+        json.dump(data, f, indent=4)
+
+#endregion

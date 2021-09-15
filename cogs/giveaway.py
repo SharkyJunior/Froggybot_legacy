@@ -13,11 +13,11 @@ class Giveaway(commands.Cog):
     # commands
     @commands.command(aliases=['gstart', 'gs', 'giveaway-start'])
     @commands.has_permissions(manage_messages=True)
-    async def giveaway_start(self, message, time, winners, channel: discord.TextChannel = None, *, prize=''):
+    async def giveaway_start(self, message, time, winners, channel: TextChannel = None, *, prize=''):
         time = to_sec(time)
         if time != "Error" and channel is not None and prize != '':
             endtime = datetime.datetime.utcnow() + datetime.timedelta(seconds=time)
-            embed = discord.Embed(title=":tada: Giveaway!", description=f'**{prize}**\nReact with :tada: to enter!',
+            embed = Embed(title=":tada: Giveaway!", description=f'**{prize}**\nReact with :tada: to enter!',
                                   color=message.author.color, timestamp=endtime)
             embed.add_field(name="Host", value=message.author.mention)
             embed.add_field(name="Time remaining",
@@ -30,7 +30,7 @@ class Giveaway(commands.Cog):
             while time > 0:
                 await asyncio.sleep(10)
                 time -= 10
-                em = discord.Embed(title=":tada: Giveaway!", description=f'**{prize}**\nReact with :tada: to enter!',
+                em = Embed(title=":tada: Giveaway!", description=f'**{prize}**\nReact with :tada: to enter!',
                                    color=message.author.color, timestamp=endtime)
                 em.add_field(name="Host", value=message.author.mention)
                 em.add_field(name="Time remaining",
@@ -53,7 +53,7 @@ class Giveaway(commands.Cog):
                 winusers_mention.append(user.mention)
 
             winusers_str = ', '.join(winusers_mention)
-            em = discord.Embed(title=":tada: Giveaway has ended!", description=f'**{prize}**',
+            em = Embed(title=":tada: Giveaway has ended!", description=f'**{prize}**',
                                color=message.author.color, timestamp=endtime)
             em.add_field(name="Host", value=message.author.mention)
             em.add_field(name="Winners",
@@ -64,7 +64,7 @@ class Giveaway(commands.Cog):
             for user in winusers:
                 print(user)
                 dm = await user.create_dm()
-                em = discord.Embed(title=":tada: You have won the giveaway!", description=f'**{prize}**',
+                em = Embed(title=":tada: You have won the giveaway!", description=f'**{prize}**',
                                    color=message.author.color, timestamp=endtime)
                 em.add_field(name="Giveaway",
                              value=msg.jump_url)
@@ -165,7 +165,7 @@ class Giveaway(commands.Cog):
             f":tada: Started giveaway of `{prize}` in {channel.mention}!")
 
         endtime = datetime.datetime.utcnow() + datetime.timedelta(seconds=time)
-        embed = discord.Embed(title=":tada: Giveaway!", description=f'**{prize}**\nReact with :tada: to enter!',
+        embed = Embed(title=":tada: Giveaway!", description=f'**{prize}**\nReact with :tada: to enter!',
                               color=message.author.color, timestamp=endtime)
         embed.add_field(name="Host", value=message.author.mention)
         embed.add_field(name="Time remaining",
@@ -179,7 +179,7 @@ class Giveaway(commands.Cog):
         while time > 0:
             await asyncio.sleep(5)
             time -= 5
-            em = discord.Embed(title=":tada: Giveaway!", description=f'**{prize}**\nReact with :tada: to enter!',
+            em = Embed(title=":tada: Giveaway!", description=f'**{prize}**\nReact with :tada: to enter!',
                                color=message.author.color, timestamp=endtime)
             em.add_field(name="Host", value=message.author.mention)
             em.add_field(name="Time remaining",
@@ -202,7 +202,7 @@ class Giveaway(commands.Cog):
             winusers_mention.append(user.mention)
 
         winusers_str = ', '.join(winusers_mention)
-        em = discord.Embed(title=":tada: Giveaway has ended!", description=f'**{prize}**',
+        em = Embed(title=":tada: Giveaway has ended!", description=f'**{prize}**',
                            color=message.author.color, timestamp=endtime)
         em.add_field(name="Host", value=message.author.mention)
         em.add_field(name="Winners",
@@ -213,7 +213,7 @@ class Giveaway(commands.Cog):
         for user in winusers:
             print(user)
             dm = await user.create_dm()
-            em = discord.Embed(title=":tada: You have won the giveaway!", description=f'**{prize}**',
+            em = Embed(title=":tada: You have won the giveaway!", description=f'**{prize}**',
                                color=message.author.color, timestamp=endtime)
             em.add_field(name="Giveaway",
                          value=msg.jump_url)

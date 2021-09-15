@@ -1,7 +1,4 @@
-import discord
-
 from main import *
-
 
 # initializing cog
 class Shop(commands.Cog):
@@ -75,7 +72,7 @@ class Shop(commands.Cog):
 
         for i in range(pages):
             if lots_quantity - i*max_lots > max_lots or lots_quantity - i*max_lots == 0:
-                em = discord.Embed(title=f'{ctx.guild.name}\'s shop', description=f'Page {i+1}/{pages}',
+                em = Embed(title=f'{ctx.guild.name}\'s shop', description=f'Page {i+1}/{pages}',
                                    color=ctx.author.color)
                 em.set_footer(text=f"Requester: {ctx.author.display_name}")
                 for j in lots[i*max_lots:(i+1)*max_lots]:
@@ -83,7 +80,7 @@ class Shop(commands.Cog):
 
                 content.append(em)
             elif lots_quantity - i*max_lots in [k for k in range(1, max_lots)]:
-                em = discord.Embed(title=f'{ctx.guild.name}\'s shop', description=f'Page {i+1}/{pages}',
+                em = Embed(title=f'{ctx.guild.name}\'s shop', description=f'Page {i+1}/{pages}',
                                    color=ctx.author.color)
                 em.set_footer(text=f"Requester: {ctx.author.display_name}")
                 for j in lots[i*max_lots:]:

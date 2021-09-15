@@ -13,16 +13,16 @@ class Moderation(commands.Cog):
     #kick command
     @commands.command()
     @commands.has_permissions(kick_members=True)
-    async def kick(self, message, member: discord.Member = None, *, reason='No reason given'):
+    async def kick(self, message, member: Member = None, *, reason='No reason given'):
         if member != None:
             channel = self.bot.get_channel(836955773513760769)  # getting admin channel
 
-            em = discord.Embed(title=":leg: **Kicked {}#{}!**".format(member.name, member.discriminator),
-                               colour=discord.Color.from_rgb(220, 20, 60), timestamp=datetime.datetime.utcnow())
+            em = Embed(title=":leg: **Kicked {}#{}!**".format(member.name, member.discriminator),
+                               colour=Color.from_rgb(220, 20, 60), timestamp=datetime.datetime.utcnow())
             em.add_field(name="Reason", value=reason)
             await message.channel.send(embed=em)
 
-            am = discord.Embed(colour=discord.Color.from_rgb(220, 20, 60), timestamp=datetime.datetime.utcnow())
+            am = Embed(colour=Color.from_rgb(220, 20, 60), timestamp=datetime.datetime.utcnow())
             am.add_field(name="User", value=member.mention)
             am.add_field(name="Moderator", value=message.author.mention)
             am.add_field(name="Reason", value=reason)
@@ -31,8 +31,8 @@ class Moderation(commands.Cog):
             am.set_thumbnail(url=member.avatar_url)
             await channel.send(embed=am)
 
-            dm = discord.Embed(title="You were kicked from {}".format(message.author.guild.name),
-                               colour=discord.Color.from_rgb(220, 20, 60), timestamp=datetime.datetime.utcnow())
+            dm = Embed(title="You were kicked from {}".format(message.author.guild.name),
+                               colour=Color.from_rgb(220, 20, 60), timestamp=datetime.datetime.utcnow())
             dm.add_field(name="Reason", value=reason)
             p = await member.create_dm()
 
@@ -45,17 +45,17 @@ class Moderation(commands.Cog):
     # ban command
     @commands.command()
     @commands.has_permissions(ban_members=True)
-    async def ban(self, message, member: discord.User, *, reason='No reason given'):
+    async def ban(self, message, member: User, *, reason='No reason given'):
         if member != None:
             channel = self.bot.get_channel(836955773513760769)
 
-            em = discord.Embed(
+            em = Embed(
                 title=":man_police_officer::lock: **Banned {}#{}!**".format(member.name, member.discriminator),
-                colour=discord.Color.from_rgb(220, 20, 60), timestamp=datetime.datetime.utcnow())
+                colour=Color.from_rgb(220, 20, 60), timestamp=datetime.datetime.utcnow())
             em.add_field(name="Reason", value=reason)
             await message.channel.send(embed=em)
 
-            am = discord.Embed(colour=discord.Color.from_rgb(220, 20, 60), timestamp=datetime.datetime.utcnow())
+            am = Embed(colour=Color.from_rgb(220, 20, 60), timestamp=datetime.datetime.utcnow())
             am.add_field(name="User", value=member.mention)
             am.add_field(name="Moderator", value=message.author.mention)
             am.add_field(name="Reason", value=reason)
@@ -64,9 +64,9 @@ class Moderation(commands.Cog):
             am.set_thumbnail(url=member.avatar_url)
             await channel.send(embed=am)
 
-            dm = discord.Embed(
+            dm = Embed(
                 title=":man_police_officer::lock: You were banned from {}".format(message.author.guild.name),
-                colour=discord.Color.from_rgb(220, 20, 60), timestamp=datetime.datetime.utcnow())
+                colour=Color.from_rgb(220, 20, 60), timestamp=datetime.datetime.utcnow())
             dm.add_field(name="Reason", value=reason)
             p = await member.create_dm()
 
@@ -92,11 +92,11 @@ class Moderation(commands.Cog):
 
                     channel = self.bot.get_channel(836955773513760769)
 
-                    em = discord.Embed(
+                    em = Embed(
                         description=":man_police_officer::unlock: **Unbanned {}#{}!**".format(user.name,
                                                                                               user.discriminator),
-                        colour=discord.Color.from_rgb(60, 179, 113), timestamp=datetime.datetime.utcnow())
-                    am = discord.Embed(colour=discord.Color.from_rgb(60, 179, 113),
+                        colour=Color.from_rgb(60, 179, 113), timestamp=datetime.datetime.utcnow())
+                    am = Embed(colour=Color.from_rgb(60, 179, 113),
                                        timestamp=datetime.datetime.utcnow())
                     am.add_field(name="User", value=user.mention)
                     am.add_field(name="Moderator", value=ctx.author.mention)
@@ -112,17 +112,17 @@ class Moderation(commands.Cog):
     # mute command
     @commands.command()
     @commands.has_permissions(administrator=True)
-    async def mute(self, message, member: discord.Member, reason='No reason given'):
+    async def mute(self, message, member: Member, reason='No reason given'):
         if member != None:
             channel = self.bot.get_channel(836955773513760769)
 
-            em = discord.Embed(
+            em = Embed(
                 title=f":mute: **Muted {member.name}#{member.discriminator}!**",
-                colour=discord.Color.from_rgb(255, 140, 0), timestamp=datetime.datetime.utcnow())
+                colour=Color.from_rgb(255, 140, 0), timestamp=datetime.datetime.utcnow())
             em.add_field(name="Reason", value=reason)
             await message.channel.send(embed=em)
 
-            am = discord.Embed(colour=discord.Color.from_rgb(255, 140, 0), timestamp=datetime.datetime.utcnow())
+            am = Embed(colour=Color.from_rgb(255, 140, 0), timestamp=datetime.datetime.utcnow())
             am.add_field(name="User", value=member.mention)
             am.add_field(name="Moderator", value=message.author.mention)
             am.add_field(name="Reason", value=reason)
@@ -131,8 +131,8 @@ class Moderation(commands.Cog):
             am.set_thumbnail(url=member.avatar_url)
             await channel.send(embed=am)
 
-            dm = discord.Embed(title=":mute: You were muted in {}.".format(message.author.guild.name),
-                               colour=discord.Color.from_rgb(255, 140, 0), timestamp=datetime.datetime.utcnow())
+            dm = Embed(title=":mute: You were muted in {}.".format(message.author.guild.name),
+                               colour=Color.from_rgb(255, 140, 0), timestamp=datetime.datetime.utcnow())
             dm.add_field(name="Reason", value=reason)
             p = await member.create_dm()
 
@@ -146,16 +146,16 @@ class Moderation(commands.Cog):
     # unmute command
     @commands.command()
     @commands.has_permissions(administrator=True)
-    async def unmute(self, message, member: discord.Member):
+    async def unmute(self, message, member: Member):
         if member != None:
             channel = self.bot.get_channel(836955773513760769)
 
-            em = discord.Embed(
+            em = Embed(
                 title=":speaker: **Unmuted {}#{}!**".format(member.name, member.discriminator),
-                colour=discord.Color.from_rgb(60, 179, 113), timestamp=datetime.datetime.utcnow())
+                colour=Color.from_rgb(60, 179, 113), timestamp=datetime.datetime.utcnow())
             await message.channel.send(embed=em)
 
-            am = discord.Embed(colour=discord.Color.from_rgb(60, 179, 113), timestamp=datetime.datetime.utcnow())
+            am = Embed(colour=Color.from_rgb(60, 179, 113), timestamp=datetime.datetime.utcnow())
             am.add_field(name="User", value=member.mention)
             am.add_field(name="Moderator", value=message.author.mention)
             am.add_field(name="Channel", value=message.channel.mention)
@@ -163,8 +163,8 @@ class Moderation(commands.Cog):
             am.set_thumbnail(url=member.avatar_url)
             await channel.send(embed=am)
 
-            dm = discord.Embed(title=":speaker: You were unmuted in {}.".format(message.author.guild.name),
-                               colour=discord.Color.from_rgb(60, 179, 113), timestamp=datetime.datetime.utcnow())
+            dm = Embed(title=":speaker: You were unmuted in {}.".format(message.author.guild.name),
+                               colour=Color.from_rgb(60, 179, 113), timestamp=datetime.datetime.utcnow())
             p = await member.create_dm()
 
             await p.send(embed=dm)
@@ -177,21 +177,21 @@ class Moderation(commands.Cog):
     # tempmute command
     @commands.command()
     @commands.has_permissions(administrator=True)
-    async def tempmute(self, message, member: discord.Member, time, *, reason='No reason given'):
+    async def tempmute(self, message, member: Member, time, *, reason='No reason given'):
         if member != None:
             channel = self.bot.get_channel(836955773513760769)
 
             timesec = to_sec(time)
 
             if timesec != 'Error':
-                em = discord.Embed(
+                em = Embed(
                     title=f":mute: **Muted {member.name}#{member.discriminator}!**",
-                    colour=discord.Color.from_rgb(255, 140, 0), timestamp=datetime.datetime.utcnow())
+                    colour=Color.from_rgb(255, 140, 0), timestamp=datetime.datetime.utcnow())
                 em.add_field(name="Reason", value=reason)
                 em.add_field(name="Duration", value=time)
                 await message.channel.send(embed=em)
 
-                am = discord.Embed(colour=discord.Color.from_rgb(255, 140, 0), timestamp=datetime.datetime.utcnow())
+                am = Embed(colour=Color.from_rgb(255, 140, 0), timestamp=datetime.datetime.utcnow())
                 am.add_field(name="User", value=member.mention)
                 am.add_field(name="Moderator", value=message.author.mention)
                 am.add_field(name="Reason", value=reason)
@@ -201,8 +201,8 @@ class Moderation(commands.Cog):
                 am.set_thumbnail(url=member.avatar_url)
                 await channel.send(embed=am)
 
-                dm = discord.Embed(title=":mute: You were muted in {}.".format(message.author.guild.name),
-                                   colour=discord.Color.from_rgb(255, 140, 0), timestamp=datetime.datetime.utcnow())
+                dm = Embed(title=":mute: You were muted in {}.".format(message.author.guild.name),
+                                   colour=Color.from_rgb(255, 140, 0), timestamp=datetime.datetime.utcnow())
                 dm.add_field(name="Reason", value=reason)
                 dm.add_field(name="Duration", value=time)
                 p = await member.create_dm()
@@ -214,14 +214,14 @@ class Moderation(commands.Cog):
                 await asyncio.sleep(timesec)
                 await member.remove_roles(role)
 
-                am = discord.Embed(colour=discord.Color.from_rgb(255, 140, 0), timestamp=datetime.datetime.utcnow())
+                am = Embed(colour=Color.from_rgb(255, 140, 0), timestamp=datetime.datetime.utcnow())
                 am.add_field(name="User", value=member.mention)
                 am.set_author(name=f"[UNMUTE] {member.name}#{member.discriminator}", icon_url=member.avatar_url)
                 am.set_thumbnail(url=member.avatar_url)
                 await channel.send(embed=am)
 
-                dm = discord.Embed(title=":speaker: You were unmuted in {}.".format(message.author.guild.name),
-                                   colour=discord.Color.from_rgb(60, 179, 113), timestamp=datetime.datetime.utcnow())
+                dm = Embed(title=":speaker: You were unmuted in {}.".format(message.author.guild.name),
+                                   colour=Color.from_rgb(60, 179, 113), timestamp=datetime.datetime.utcnow())
 
                 p = await member.create_dm()
 
@@ -235,21 +235,21 @@ class Moderation(commands.Cog):
     # tempban command
     @commands.command()
     @commands.has_permissions(ban_members=True)
-    async def tempban(self, message, member: discord.Member, time, *, reason='No reason given'):
+    async def tempban(self, message, member: Member, time, *, reason='No reason given'):
         if member != None:
             channel = self.bot.get_channel(836955773513760769)
 
             timesec = to_sec(time)
 
             if timesec != 'Error':
-                em = discord.Embed(
+                em = Embed(
                     title=":man_police_officer::lock: **Tempbanned {}#{}!**".format(member.name, member.discriminator),
-                    colour=discord.Color.from_rgb(220, 20, 60), timestamp=datetime.datetime.utcnow())
+                    colour=Color.from_rgb(220, 20, 60), timestamp=datetime.datetime.utcnow())
                 em.add_field(name="Reason", value=reason)
                 em.add_field(name="Duration", value=time)
                 await message.channel.send(embed=em)
 
-                am = discord.Embed(colour=discord.Color.from_rgb(220, 20, 60), timestamp=datetime.datetime.utcnow())
+                am = Embed(colour=Color.from_rgb(220, 20, 60), timestamp=datetime.datetime.utcnow())
                 am.add_field(name="User", value=member.mention)
                 am.add_field(name="Moderator", value=message.author.mention)
                 am.add_field(name="Reason", value=reason)
@@ -259,9 +259,9 @@ class Moderation(commands.Cog):
                 am.set_thumbnail(url=member.avatar_url)
                 await channel.send(embed=am)
 
-                dm = discord.Embed(
+                dm = Embed(
                     title=":man_police_officer::lock: You were banned from {}".format(message.author.guild.name),
-                    colour=discord.Color.from_rgb(220, 20, 60), timestamp=datetime.datetime.utcnow())
+                    colour=Color.from_rgb(220, 20, 60), timestamp=datetime.datetime.utcnow())
                 dm.add_field(name="Reason", value=reason)
                 em.add_field(name="Duration", value=time)
                 p = await member.create_dm()
@@ -283,7 +283,7 @@ class Moderation(commands.Cog):
 
                         channel = self.bot.get_channel(836955773513760769)
 
-                        am = discord.Embed(colour=discord.Color.from_rgb(60, 179, 113),
+                        am = Embed(colour=Color.from_rgb(60, 179, 113),
                                            timestamp=datetime.datetime.utcnow())
                         am.add_field(name="User", value=user.mention)
                         am.set_author(name=f"[UNBAN] {user.name}#{user.discriminator}", icon_url=user.avatar_url)
