@@ -1,4 +1,5 @@
 import json
+from os import *
 
 MEMBER_DATA_FILE = ".\data\member-data.json"
 DEFAULT_DATA_FILE = ".\data\default-data.json"
@@ -252,3 +253,25 @@ def save_data(filename, data):
         json.dump(data, f, indent=4)
 
 #endregion
+
+DATA_FILES = ["config.json", "default-data.json", "guild-settings.json", "member-data.json"]
+
+class DataHandler:
+    def __init__(self, dataPath):
+        if not path.exists(dataPath): # make directory for data if not found
+            mkdir(dataPath)
+
+        self.dataPath = dataPath
+    
+        for f in DATA_FILES: # if file is missing it'll be automatically created
+            if not path.exists():
+                with open(self.__getPath(f), "w") as file:
+                    file = "{}"
+            
+
+
+                    
+
+
+    def __getPath(self, filename):
+        return self.dataPath + "/" + filename    
