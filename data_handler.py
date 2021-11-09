@@ -264,13 +264,21 @@ class DataHandler:
         self.dataPath = dataPath
     
         for f in DATA_FILES: # if file is missing it'll be automatically created
-            if not path.exists():
+            if not path.exists(self.__getPath(f)):
                 with open(self.__getPath(f), "w") as file:
                     file = "{}"
+
+        self.__load_data_file("test-data.json")
             
 
 
                     
+    def __load_full_defalt_data():
+        pass
+
+    def __load_data_file(self, filename):
+        with open(self.__getPath(filename), "w") as f:
+            return json.load(f)
 
 
     def __getPath(self, filename):

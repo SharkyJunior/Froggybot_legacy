@@ -1,3 +1,4 @@
+from ntpath import realpath
 import os.path
 import random
 import math
@@ -34,7 +35,8 @@ activity = Game(name='#help')
 bot = commands.Bot(command_prefix=PREFIX, activity=activity, intents=intents)
 guilds_ids = [839566467375956041]
 
-format_defaul_data()
+print(realpath(__file__))
+dh = DataHandler("./data")
 
 
 @bot.listen('on_message')
