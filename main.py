@@ -28,6 +28,7 @@ DAILY_MULTIPLIER = 0.4
 WORK_LIMIT = 100
 ENTER_ROLE_ID = 836891624398389298
 MESSAGES_PER_LEVEL_MODIFIER = 1.4
+DATA_FOLDER = "./data"
 
 intents = Intents.all()
 intents.members = True
@@ -35,8 +36,9 @@ activity = Game(name='#help')
 bot = commands.Bot(command_prefix=PREFIX, activity=activity, intents=intents)
 guilds_ids = [839566467375956041]
 
-print(realpath(__file__))
-#dh = DataHandler("./data")
+
+def main(): # bot init should be moved into this function
+    dh = DataHandler(DATA_FOLDER)
 
 
 @bot.listen('on_message')
@@ -557,3 +559,7 @@ for filename in os.listdir('./cogs'):
 
 bot.loop.create_task(change_status())  # enabling changing status
 bot.run(TOKEN)  # running the bot
+
+
+if __name__ == "__main__":
+    main()
