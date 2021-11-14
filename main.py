@@ -36,7 +36,7 @@ bot = commands.Bot(command_prefix=PREFIX, activity=activity, intents=intents)
 guilds_ids = [839566467375956041]
 
 print(realpath(__file__))
-dh = DataHandler("./data")
+#dh = DataHandler("./data")
 
 
 @bot.listen('on_message')

@@ -23,7 +23,6 @@
         }
     },
     "DEFAULT_MEMBER_INFO": {
-        "Inventory": {},
         "Level": 0,
         "Messages_Quantity": 0,
         "wallet": 10000,
@@ -54,7 +53,11 @@
         "MoneyWoninRoulette": 0,
         "MoneyLostinRoulette": 0,
         "MoneyGotfromDailyRewards": 0,
-        "MoneyGotfromWorkPayments": 0
+        "MoneyGotfromWorkPayments": 0,
+        "Inventory": {
+            "banana": 1,
+            "apple": 2
+        }
     },
     "DEFAULT_SHOP_INFO": {
         "banana": [
@@ -85,9 +88,5 @@
             50,
             100
         ]
-    },
-    "DEFAULT_INVENTORY": {
-        "banana": 1,
-        "apple": 2
     }
 }

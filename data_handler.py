@@ -1,285 +1,231 @@
 import json
-from os import *
+import os
 
-MEMBER_DATA_FILE = ".\data\member-data.json"
-DEFAULT_DATA_FILE = ".\data\default-data.json"
-CONFIG_FILE = ".\data\config.json"
-GUILD_SETTINGS_FILE = ".\data\guild-settings.json"
+# missing data segment managers:
+# shop
 
-DEFAULT_DATA = {"DEFAULT_SERVER_INFO": {
-                        "server-info":
-                         {"shop": dict(),
-                          "members": 0,
-                          "enter-role-id": "no",
-                          "work-cool-down": 3600,
-                          "on-member-join-message": "no",
-                          "on-member-join-dm": "no",
-                          "on-member-join-channel": "no",
-                          "on-member-left-message": "no",
-                          "on-member-left-channel": "no",
-                          "on-member-left-dm": "no",
-                          "moderation-report-channel": "no",
-                          "profaned-words": [],
-                          "moderator-roles": [],
-                          "xp-modifier": 1,
-                          "shop-delete-timeout": 30,
-                          "max-lots-on-page": 4,
-                          "max-items-on-page": 4,
-                          "is_connected": False,
-                          "is_playing": False
-                          }
-                     }, "DEFAULT_MEMBER_INFO": {
-                     'Inventory': dict(), "Level": 0, "Messages_Quantity": 0,
-                     'wallet': 10000, 'bank': 10000, 'isPlayingRoulette': False,
-                     'lastMessage': None, 'isPlayingHL': False,
-                     'TotalGamesPlayed': 0,
-                     'DicesPlayed': 0, 'RoulettesPlayed': 0, 'SlotsPlayed': 0, 'HighLowsPlayed': 0,
-                     'DailyRewardsCollected': 0, 'WorksCollected': 0,
-                     'RobAttempts': 0, 'SuccessfulRobberies': 0, 'TimesRobbed': 0, 'TimesSuccessfullyRobbed': 0,
-                     'TotalRobberyProfit': 0,
-                     'MoneyWon': 0, 'MoneyLost': 0, 'MoneyWoninDice': 0, 'MoneyLostinDice': 0, 'MoneyWoninSlots': 0,
-                     'MoneyLostinSlots': 0, 'MoneyWoninHighLow': 0, 'MoneyLostinHighLow': 0, 'MoneyWoninRoulette': 0,
-                     'MoneyLostinRoulette': 0,
-                     'MoneyGotfromDailyRewards': 0, 'MoneyGotfromWorkPayments': 0
-                     }, "DEFAULT_SHOP_INFO": {
-                        "banana": [100, 10],
-                        "pineapple": [200, 2],
-                        "kek": [30, 3],
-                        "lol": [60, 5],
-                        "why": [80, 1],
-                        "nope": [1000, 90],
-                        "apple": [50, 100]
-                    }, "DEFAULT_INVENTORY": {
-                        "banana": 1,
-                        "apple": 2
-                    }
-                }
+DATA_FILES = ["config.json", "default-data.json",
+              "guild-settings.json", "member-data.json"]
 
 
-# data loaders
+'''
+data structure:
+-config.json
+    # a file that stores a specific imformation for bot eg: TOKEN
 
+-default-data.json
+ -DEFAULT_SERVER_INFO
+     # specific set of information given to any server Froggy joins
+ -DEFAULT_MEMBER_INFO
+     # specifis set of information given to any user that joins the server
+ -DEFAULT_SHOP_INFO
+     # set of inforamtion given to the server about shop
 
+-guild-settings.json
+    # a set of settings provided to the server
 
+-member-data.json
+ -guild id
+  -member id
+    # a set of information provided to any member of a specific server
 
+'''
 
-
-def load_server_data(guild):
-    guild_data = load_guild_data(guild)
-
-    if "server-info" not in guild_data:
-        create_default_server_data(guild)
-
-        guild_data = load_guild_data(guild)
-
-    return guild_data["server-info"]
-
-
-def load_shop_data(guild):
-    server_info = load_server_data(guild)
-
-    if "shop" not in server_info:
-        create_default_shop_data(guild)
-
-        server_info = load_server_data(guild)
-
-    return server_info["shop"]
-
-
-def load_inventory_data(member, guild):
-    member_data = load_member_data(member, guild)
-
-    if "Inventory" not in member_data:
-        create_default_inventory_data(member, guild)
-
-        member_data = load_member_data(member, guild)
-
-    return member_data["Inventory"]
-
-
-# data savers
-def save_server_data(server_data, guild):
-    guild_data = load_guild_data(guild)
-    guild_data["server-info"] = server_data
-    save_guild_data(guild_data, guild)
-
-
-def save_shop_data(shop_data, guild):
-    server_data = load_server_data(guild)
-    server_data["shop"] = shop_data
-    save_server_data(server_data, guild)
-
-
-def save_inventory_data(inventory_data, member, guild):
-    member_data = load_member_data(member, guild)
-    member_data["Inventory"] = inventory_data
-    save_member_data(member_data, member, guild)
-
-
-# data management
-
-
-def create_default_server_data(guild):
-    guild_data = load_guild_data(guild)
-
-    guild_data["server-info"] = DEFAULT_DATA["DEFAULT_SERVER_INFO"]["server-info"]
-
-    save_guild_data(guild_data, guild)
-
-
-
-
-def create_default_shop_data(guild):
-    server_data = load_server_data(guild)
-
-    server_data["shop"] = DEFAULT_DATA["DEFAULT_SHOP_INFO"]
-
-    save_server_data(server_data, guild)
-
-
-def create_default_inventory_data(member, guild):
-    member_data = load_member_data(member, guild)
-    member_data["Inventory"] = DEFAULT_DATA["DEFAULT_INVENTORY"]
-    save_member_data(member_data, member, guild)
-
-
-
-
-#region guild-settings
-
-#endregion
-
-#region full-guild-settings
-
-#endregion
-
-#region member-data
-def load_member_data(member, guild):
-    data = load_guild_data(guild)
-    if str(member.id) not in data:
-        create_default_member_data(member, guild)
-
-        data = load_guild_data(guild)
-
-    return data[str(member.id)]
-
-
-def save_member_data(data, member, guild):
-    guild_data = load_guild_data(guild)
-    guild_data[str(member.id)] = data
-    save_guild_data(guild_data, guild)
-
-
-def create_default_member_data(member, guild):
-    guild_data = load_guild_data(guild)
-    member_data = DEFAULT_DATA["DEFAULT_MEMBER_INFO"]
-    member_data["Inventory"] = DEFAULT_DATA["DEFAULT_INVENTORY"]
-    guild_data[str(member.id)] = member_data
-
-    save_guild_data(guild_data, guild)
-
-#endregion
-
-#region guild-data
-def load_guild_data(guild):
-    data = load_full_data()
-    if str(guild.id) not in data:
-        create_default_guild_data(guild)
-
-        data = load_full_data()
-
-    return data[str(guild.id)]
-
-
-def save_guild_data(data, guild):
-    full_data = load_full_data()
-    full_data[str(guild.id)].update(data)
-    save_full_data(full_data)
-
-
-def create_default_guild_data(guild):
-    full = load_full_data()
-    members = guild.members
-    members_amt = 0
-    guild_data = DEFAULT_DATA["DEFAULT_SERVER_INFO"]
-    guild_data["server-info"]["shop"] = DEFAULT_DATA["DEFAULT_SHOP_INFO"]
-
-    for i in members:
-        if not i.bot:
-            guild_data[str(i.id)] = DEFAULT_DATA["DEFAULT_MEMBER_INFO"]
-            guild_data[str(i.id)]["Inventory"] = DEFAULT_DATA["DEFAULT_INVENTORY"]
-            members_amt += 1
-
-    guild_data["server-info"]["members"] = members_amt
-    full[str(guild.id)] = guild_data
-    save_full_data(full)
-
-
-def remove_guild_data(guild):
-    full_data = load_full_data()
-    del full_data[str(guild.id)]
-    save_full_data(full_data)
-
-#endregion
-
-#region full-data
-def load_full_data():
-    return load_data(MEMBER_DATA_FILE)
-
-
-def save_full_data(full_data):
-    save_data(MEMBER_DATA_FILE, full_data)
-
-
-def create_default_data():
-    save_full_data(dict())
-
-#endregion
-
-#region service
-def load_default_data():
-    return load_data(DEFAULT_DATA_FILE)
-
-def format_defaul_data():
-    save_data(DEFAULT_DATA_FILE, load_default_data())
-
-
-def load_data(filename):
-    with open(filename, 'r') as f:
-        return json.load(f)
-
-
-def save_data(filename, data):
-    with open(filename, 'w') as f:
-        json.dump(data, f, indent=4)
-
-#endregion
-
-DATA_FILES = ["config.json", "default-data.json", "guild-settings.json", "member-data.json"]
 
 class DataHandler:
     def __init__(self, dataPath):
-        if not path.exists(dataPath): # make directory for data if not found
-            mkdir(dataPath)
+        if not os.path.exists(dataPath):  # make directory for data if not found
+            os.mkdir(dataPath)
 
         self.dataPath = dataPath
-    
-        for f in DATA_FILES: # if file is missing it'll be automatically created
-            if not path.exists(self.__getPath(f)):
+
+        for f in DATA_FILES:  # if file is missing it'll be automatically created
+            if not os.path.exists(self.__getPath(f)):
                 with open(self.__getPath(f), "w") as file:
-                    file = "{}"
+                    json.dump(dict(), f, indent=4)
 
-        self.__load_data_file("test-data.json")
-            
+# region guild-data
+
+    # loads guild data, if not found it'll create default one  
+    def load_guild_data(self, guild):
+        id = str(guild.id)
+        data = self.__load_full_guild_data()
+
+        if id not in data:
+            data = self.__create_default_guild_data(guild)
+
+        return data[id]
+
+    # dumps guild data 
+    def save_guild_data(self, data, guild):
+        full_data = self.__load_full_guild_data()
+        full_data[str(guild.id)] = data
+        self.__save_full_guild_data(full_data)
+
+    # completely clears guild data and fills it up with default one
+    def __create_default_guild_data(self, guild):
+        id = str(guild.id)
+        data = self.__load_full_guild_data()
+
+        default_data = self.__load_default_data()
+        data[id] = default_data["DEFAULT_SERVER_INFO"]
+
+        self.__save_full_guild_data(data)
+        return data
+
+    # completely deletes guild data entry in full data
+    def __remove_guild_data(self, guild):
+        data = self.__load_full_guild_data()
+        del data[str(guild.id)]
+        self.__save_full_guild_data(data) 
+
+# endregion
+
+# region guild-data file
+
+    # loads the whole file with guild data and returns it as a dictionary
+    def __load_full_guild_data(self):
+        return self.__load_data_file(DATA_FILES[2])
+
+    # dumps data into the file with guild data
+    def __save_full_guild_data(self, data):
+        self.__save_data_file(DATA_FILES[2], data)
+
+    # completely clears all data from guild data file and puts there an empty dictionary
+    def __create_default_full_guild_data(self):
+        self.__save_full_guild_data(dict())
+
+# endregion
 
 
-                    
-    def __load_full_defalt_data():
-        pass
+# region member-data
 
-    def __load_data_file(self, filename):
+    # loads data about a specific member if it's missing it'll be created
+    def load_member_data(self, guild, member):
+        guild_data = self.__load_guild_member_data(guild)
+        id = str(member.id)
+
+        if id not in guild_data:
+            guild_data = self.create_default_member_data(guild, member)
+
+        return guild_data[id]
+    
+    # dumps information about a specific member
+    def save_member_data(self, data, guild, member):
+        guild_data = self.__load_guild_member_data(guild)
+        guild_data[str(member.id)] = data
+        self.__save_guild_member_data(guild_data, guild)
+
+    # creates default information for a specific member
+    def create_default_member_data(self, guild, member):
+        guild_data = self.__load_guild_member_data(guild)
+        guild_data[str(member.id)] = self.__load_default_data()["DEFAULT_MEMBER_INFO"]
+        self.__save_guild_member_data(guild_data, guild)
+        return guild_data
+
+    # completely removees a specific member data
+    def remove_member_data(self, guild, member):
+        guild_data = self.__load_guild_member_data(guild)
+        del guild_data[str(member.id)]
+        self.__save_guild_member_data(guild_data, guild)
+
+# endregion
+
+
+# region guild-data
+
+    # loads guild data, if not found it'll create default one  
+    def __load_guild_member_data(self, guild):
+        id = str(guild.id)
+        data = self.__load_full_member_data()
+
+        if id not in data:
+            data = self.__create_default_guild_member_data(guild)
+
+        return data[id]
+
+    # dumps guild data 
+    def __save_guild_member_data(self, data, guild):
+        full_data = self.__load_full_member_data()
+        full_data[str(guild.id)] = data
+        self.__save_full_member_data(full_data)
+
+    # completely clears guild data and fills it up with default one
+    def __create_default_guild_member_data(self, guild):
+        id = str(guild.id)
+        data = self.__load_full_member_data()
+
+        data[id] = dict()
+        default_data = self.__load_default_data()
+
+        for m in guild.members:
+            if not m.bot:
+                data[id][str(m.id)] = default_data["DEFAULT_MEMBER_INFO"]
+
+        self.__save_full_member_data(data)
+        return data
+
+    # completely deletes guild data entry in full data
+    def __remove_guild_member_data(self, guild):
+        data = self.__load_full_member_data()
+        del data[str(guild.id)]
+        self.__save_full_member_data(data) 
+
+
+
+#endregion
+
+
+# region member-data file
+
+    # loads the whole file with member data and returns it as a dictionary
+    def __load_full_member_data(self):
+        return self.__load_data_file(DATA_FILES[3])
+
+    # dumps data into the file with member data
+    def __save_full_member_data(self, data):
+        self.__save_data_file(DATA_FILES[3], data)
+
+    # completely clears all data from member data file and puts there an empty dictionary
+    def __create_default_full_member_data(self):
+        self.__save_full_member_data(dict())
+
+# endregion
+
+
+# region global
+
+    # loads config file
+    def load_config(self):
+        return self.__load_data_file(DATA_FILES[0])
+
+    # loads a special data file that contains default values for other data files
+    def __load_default_data(self):
+        return self.__load_data_file(DATA_FILES[1])
+
+    # dumps data into the file !!USE WITH CAUTION!!
+    def __save_data_file(self, filename, data):
         with open(self.__getPath(filename), "w") as f:
-            return json.load(f)
+            json.dump(data, f, indent=4)
 
+    # loads the whole file and returns it as a dictionary, if file's unreadable it'll be reseted to empty dictionary
+    def __load_data_file(self, filename):
+        f = open(self.__getPath(filename), "r")
+        try:
+            data = json.load(f)
+            f.close()
+            return data
+        except json.decoder.JSONDecodeError:
+            f.close()
+
+            f = open(self.__getPath(filename), "w")
+            json.dump(dict(), f, indent=4)
+            f.close()
+            return dict()
+        finally:
+            f.close()
 
     def __getPath(self, filename):
-        return self.dataPath + "/" + filename    
+        return self.dataPath + "/" + filename
+
+# endregion
