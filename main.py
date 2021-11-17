@@ -15,6 +15,7 @@ from discord.ext.commands import cooldown, CommandOnCooldown, MissingRequiredArg
 from discord_slash.error import SlashCommandError
 
 from data_handler import *
+from utility import *
 from extensions import *
 
 from discord_slash.utils.manage_components import *
@@ -39,6 +40,7 @@ guilds_ids = [839566467375956041]
 
 def main(): # bot init should be moved into this function
     dh = DataHandler(DATA_FOLDER)
+    u = Utility(DATA_FOLDER)
 
 
 @bot.listen('on_message')
@@ -386,168 +388,6 @@ async def on_application_command_error(ctx, exc):
             ":x: **You do not have permission to run this command!**")
     else:
         print(exc)
-
-
-def buy_item(member, guild, item, quantity):
-    shop_data = load_shop_data(guild)
-
-    remove_money(member, guild, shop_data[item][0]*quantity)
-    member_data = add_item(member, guild, item, quantity)
-
-    shop_data[item][1] -= quantity
-
-    save_shop_data(shop_data, guild)
-
-    return member_data
-
-
-def sell_item(member, guild, item, quantity):
-    shop_data = load_shop_data(guild)
-
-    remove_item(member, guild, item, quantity)
-    add_money(member, guild, shop_data[item][0]*quantity)
-
-    shop_data[item][1] += quantity
-    save_shop_data(shop_data, guild)
-
-
-def add_item(member, guild, item, quantity):
-    member_inventory = load_inventory_data(member, guild)
-    if item in member_inventory:
-        member_inventory[item] += quantity
-    else:
-        member_inventory[item] = quantity
-
-    save_inventory_data(member_inventory, member, guild)
-    return member_inventory
-
-
-def remove_item(member, guild, item, quantity):
-    member_inventory = load_inventory_data(member, guild)
-    if item in member_inventory:
-        member_inventory[item] -= quantity
-        if member_inventory[item] == 0:
-            del member_inventory[item]
-    else:
-        member_inventory[item] = -quantity
-
-    save_inventory_data(member_inventory, member, guild)
-    return member_inventory
-
-
-def set_item(member, guild, item, quantity):
-    member_inventory = load_inventory_data(member, guild)
-
-    member_inventory[item] = quantity
-
-    save_inventory_data(member_inventory, member, guild)
-    return member_inventory
-
-
-def send_item(sender, receiver, guild, item, quantity):
-    remove_item(sender, guild, item, quantity)
-    add_item(receiver, guild, item, quantity)
-
-
-# adds money to user's bank account and returns the final amount
-def add_money(user, guild, amount):
-    member_data = load_member_data(user, guild)
-    member_data['bank'] += int(amount)
-    save_member_data(member_data, user, guild)
-    return member_data['bank']
-
-
-# adds money to user's wallet and returns the final amount
-def add_wmoney(user, guild, amount):
-    member_data = load_member_data(user, guild)
-    member_data['wallet'] += int(amount)
-    save_member_data(member_data, user, guild)
-    return member_data['wallet']
-
-
-# removes money from user's bank account and returns the final amount
-def remove_money(user, guild, amount):
-    member_data = load_member_data(user, guild)
-    member_data['bank'] -= int(amount)
-    save_member_data(member_data, user, guild)
-    return member_data['bank']
-
-
-# removes money from user's wallet and returns the final amount
-def remove_wmoney(user, guild, amount):
-    member_data = load_member_data(user, guild)
-    member_data['wallet'] -= int(amount)
-    save_member_data(member_data, user, guild)
-    return member_data['wallet']
-
-
-# sets the amount of money on user's bank account and returns the final amount
-def set_money(user, guild, amount):
-    member_data = load_member_data(user, guild)
-    member_data['bank'] = int(amount)
-    save_member_data(member_data, user, guild)
-    return member_data['bank']
-
-
-# sets the amount of money in user's wallet and returns the final amount
-def set_wmoney(user, guild, amount):
-    member_data = load_member_data(user, guild)
-    member_data['wallet'] = int(amount)
-    save_member_data(member_data, user, guild)
-    return member_data['wallet']
-
-
-# transfers money from bank account to wallet and returns both final values
-def withdraw_money(user, guild, amount):
-    member_data = load_member_data(user, guild)
-    member_data['bank'] -= int(amount)
-    member_data['wallet'] += int(amount)
-    save_member_data(member_data, user, guild)
-    return member_data['bank'], member_data['wallet']
-
-
-# transfers money from wallet to bank account and takes the fee out returning final values
-def deposit_money(user, guild, amount):
-    member_data = load_member_data(user, guild)
-    member_data['bank'] += int(0.9 * int(amount))
-    member_data['wallet'] -= int(amount)
-    save_member_data(member_data, user, guild)
-    return member_data['bank'], member_data['wallet']
-
-
-# transfers money from sender's bank account to receiver's one if lack of money on sender's account,
-# the money will be taken from sender's wallet
-def send_money(sender, receiver, guild, amount):
-    sender_data = load_member_data(sender, guild)
-    receiver_data = load_member_data(receiver, guild)
-    if sender_data['bank'] >= int(amount):
-        sender_data['bank'] -= int(amount)
-        receiver_data['bank'] += int(amount)
-    else:
-        sender_data['wallet'] -= sender_data['bank'] + int(amount)
-        sender_data['bank'] = 0
-        receiver_data['bank'] += int(amount)
-    save_member_data(sender_data, sender, guild)
-    save_member_data(receiver_data, receiver, guild)
-    return sender_data['wallet'], sender_data['bank'], receiver_data['wallet'], receiver_data['bank']
-
-
-def rob_money(robber, victim, guild, amount):
-    victim_data = load_member_data(victim, guild)
-    robber_data = load_member_data(robber, guild)
-    victim_data['wallet'] -= int(amount)
-    robber_data['wallet'] += int(amount)
-    save_member_data(victim_data, victim, guild)
-    save_member_data(robber_data, robber, guild)
-    return victim_data['wallet'], robber_data['wallet']
-
-
-def to_sec(time):
-    time_convert = {"s": 1, "m": 60, "h": 3600, "d": 86400}
-    try:
-        return int(time[:-1]) * time_convert[time[-1]]
-    except:
-        return 'Error'
 
 
 # importing cogs
